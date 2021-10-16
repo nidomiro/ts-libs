@@ -1,9 +1,9 @@
 {
-  "version": 2,
-  "projects": {
-    "config-helper": "packages/config-helper"
-  },
-  "cli": {
-    "defaultCollection": "@nrwl/workspace"
-  }
+	"version": 2,
+	"projects": {
+		"config-helper": "packages/config-helper"
+	},
+	"cli": {
+		"defaultCollection": "@nrwl/workspace"
+	}
 }
