@@ -1,41 +1,21 @@
 {
 	"root": true,
-	"ignorePatterns": [
-		"**/*"
-	],
-	"plugins": [
-		"@nrwl/nx",
-		"@lights-on-io"
-	],
+	"ignorePatterns": ["**/*"],
+	"plugins": ["@nrwl/nx", "@lights-on-io"],
 	"overrides": [
 		{
-			"files": [
-				"*.ts",
-				"*.tsx"
-			],
-			"extends": [
-				"plugin:@lights-on-io/typescript-strict"
-			],
+			"files": ["*.ts", "*.tsx"],
+			"extends": ["plugin:@lights-on-io/typescript-strict"],
 			"parserOptions": {
 				"project": "./tsconfig.*?.json"
 			}
 		},
 		{
-			"files": [
-				"*.js",
-				"*.jsx"
-			],
-			"extends": [
-				"plugin:@lights-on-io/javascript-strict"
-			]
+			"files": ["*.js", "*.jsx"],
+			"extends": ["plugin:@lights-on-io/javascript-strict"]
 		},
 		{
-			"files": [
-				"*.ts",
-				"*.tsx",
-				"*.js",
-				"*.jsx"
-			],
+			"files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
 			"rules": {
 				"@nrwl/nx/enforce-module-boundaries": [
 					"error",
@@ -45,9 +25,7 @@
 						"depConstraints": [
 							{
 								"sourceTag": "*",
-								"onlyDependOnLibsWithTags": [
-									"*"
-								]
+								"onlyDependOnLibsWithTags": ["*"]
 							}
 						]
 					}
@@ -55,23 +33,13 @@
 			}
 		},
 		{
-			"files": [
-				"*.ts",
-				"*.tsx"
-			],
-			"extends": [
-				"plugin:@nrwl/nx/typescript"
-			],
+			"files": ["*.ts", "*.tsx"],
+			"extends": ["plugin:@nrwl/nx/typescript"],
 			"rules": {}
 		},
 		{
-			"files": [
-				"*.js",
-				"*.jsx"
-			],
-			"extends": [
-				"plugin:@nrwl/nx/javascript"
-			],
+			"files": ["*.js", "*.jsx"],
+			"extends": ["plugin:@nrwl/nx/javascript"],
 			"rules": {}
 		}
 	]
