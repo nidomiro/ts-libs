@@ -37,7 +37,7 @@ function addEnv<T>(schema: convict.Schema<T>): convict.Schema<T> {
 	return iterate(schema, []);
 }
 
-export function configuration<T>(schema: convict.Schema<T>, opts?: convict.Options): convict.Config<T> {
+export function createConfig<T>(schema: convict.Schema<T>, opts?: convict.Options): convict.Config<T> {
 
 	return convict(addEnv(schema), opts);
 }
