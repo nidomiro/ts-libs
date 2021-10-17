@@ -55,4 +55,56 @@ describe('configHelper', () => {
 			'GROUP_INNER_GROUP_TEST_PROP'
 		);
 	});
+
+	describe('env-var prefix tests', () => {
+
+		it('should prefix generated env-vars', () => {
+			const config = createConfig({
+				testProp: {
+					default: 'testPropValue',
+				},
+			}, {
+				envPrefix: 'PREFIX'
+			});
+
+			expect(config.getSchema().properties).toHaveProperty('testProp.env');
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-expect-error
+			expect(config.getSchema().properties['testProp']['env']).toEqual('PREFIX_TEST_PROP');
+		});
+
+		it('should not prefix existing env-vars if not configured', () => {
+			const config = createConfig({
+				testProp: {
+					default: 'testPropValue',
+					env: 'EXISTING_PROP'
+				},
+			}, {
+				envPrefix: 'PREFIX'
+			});
+
+			expect(config.getSchema().properties).toHaveProperty('testProp.env');
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-expect-error
+			expect(config.getSchema().properties['testProp']['env']).toEqual('EXISTING_PROP');
+		});
+
+		it('should prefix existing env-vars if configured', () => {
+			const config = createConfig({
+				testProp: {
+					default: 'testPropValue',
+					env: 'EXISTING_PROP'
+				},
+			}, {
+				envPrefix: 'PREFIX',
+				prefixExistingEnv: true,
+			});
+
+			expect(config.getSchema().properties).toHaveProperty('testProp.env');
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-expect-error
+			expect(config.getSchema().properties['testProp']['env']).toEqual('PREFIX_EXISTING_PROP');
+		});
+
+	})
 });

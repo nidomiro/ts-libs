@@ -33,7 +33,6 @@ const config = createConfig({
 		doc: 'The port to bind.',
 		format: 'port',
 		default: 8080,
-		arg: 'port'
 	},
 	database: {
 		connectionUrl: { // Will also be configurable via env-var 'DATABASE_CONNECTION_URL'
@@ -54,3 +53,23 @@ const config = createConfig({
 ```
 
 If you want to more information, you can head over to: https://github.com/mozilla/node-convict/tree/master/packages/convict#usage
+
+### Custom Config
+This library provides some additional options:
+
+```typescript
+const options: ConfigOptions  = {
+	/**
+	 * Adds MY_PREFIX as prefix of every generated env.
+	 * In the example above the config 'port' would be configurable via 'MY_PREFIX_PORT'.
+	 * default: no prefix
+	 */
+	envPrefix: 'MY_PREFIX', 
+	/**
+	 * Apply the envPrefix to existing env entries if true.
+	 * In the example above the config 'env' would be 'MY_PREFIX_NODE_ENV'
+	 * default: false
+	 */
+	prefixExistingEnv: true
+}
+```
