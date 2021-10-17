@@ -1,35 +1,78 @@
 {
-  "root": true,
-  "ignorePatterns": ["**/*"],
-  "plugins": ["@nrwl/nx"],
-  "overrides": [
-    {
-      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "rules": {
-        "@nrwl/nx/enforce-module-boundaries": [
-          "error",
-          {
-            "enforceBuildableLibDependency": true,
-            "allow": [],
-            "depConstraints": [
-              {
-                "sourceTag": "*",
-                "onlyDependOnLibsWithTags": ["*"]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "files": ["*.ts", "*.tsx"],
-      "extends": ["plugin:@nrwl/nx/typescript"],
-      "rules": {}
-    },
-    {
-      "files": ["*.js", "*.jsx"],
-      "extends": ["plugin:@nrwl/nx/javascript"],
-      "rules": {}
-    }
-  ]
+	"root": true,
+	"ignorePatterns": [
+		"**/*"
+	],
+	"plugins": [
+		"@nrwl/nx",
+		"@lights-on-io"
+	],
+	"overrides": [
+		{
+			"files": [
+				"*.ts",
+				"*.tsx"
+			],
+			"extends": [
+				"plugin:@lights-on-io/typescript-strict"
+			],
+			"parserOptions": {
+				"project": "./tsconfig.*?.json"
+			}
+		},
+		{
+			"files": [
+				"*.js",
+				"*.jsx"
+			],
+			"extends": [
+				"plugin:@lights-on-io/javascript-strict"
+			]
+		},
+		{
+			"files": [
+				"*.ts",
+				"*.tsx",
+				"*.js",
+				"*.jsx"
+			],
+			"rules": {
+				"@nrwl/nx/enforce-module-boundaries": [
+					"error",
+					{
+						"enforceBuildableLibDependency": true,
+						"allow": [],
+						"depConstraints": [
+							{
+								"sourceTag": "*",
+								"onlyDependOnLibsWithTags": [
+									"*"
+								]
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"files": [
+				"*.ts",
+				"*.tsx"
+			],
+			"extends": [
+				"plugin:@nrwl/nx/typescript"
+			],
+			"rules": {}
+		},
+		{
+			"files": [
+				"*.js",
+				"*.jsx"
+			],
+			"extends": [
+				"plugin:@nrwl/nx/javascript"
+			],
+			"rules": {}
+		}
+	]
 }

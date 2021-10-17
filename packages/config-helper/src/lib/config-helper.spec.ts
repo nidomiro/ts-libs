@@ -1,4 +1,4 @@
-import { createConfig } from '@nidomiro/config-helper';
+import { createConfig } from './config-helper';
 
 describe('configHelper', () => {
 
@@ -11,7 +11,8 @@ describe('configHelper', () => {
 		});
 
 		expect(config.getSchema().properties).toHaveProperty('testProp.env');
-		// @ts-ignore
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-expect-error
 		expect(config.getSchema().properties['testProp']['env']).toEqual('TEST_PROP');
 	});
 
@@ -25,7 +26,8 @@ describe('configHelper', () => {
 		});
 
 		expect(config.getSchema().properties).toHaveProperty('testProp.env');
-		// @ts-ignore
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-expect-error
 		expect(config.getSchema().properties['testProp']['env']).toEqual('TEST_ENV_VAR');
 	});
 
@@ -45,15 +47,14 @@ describe('configHelper', () => {
 
 		});
 
-		console.log(config.getSchema())
-		console.log(config.getSchemaString())
-
 		expect(config.getSchema().properties).toHaveProperty('group.properties.testProp.env');
 
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-expect-error
 		expect(config.getSchema().properties.group.properties.testProp.env).toEqual('GROUP_TEST_PROP');
 
 		expect(config.getSchema().properties).toHaveProperty('group.properties.innerGroup.properties.testProp.env');
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-expect-error
 		expect(config.getSchema().properties.group.properties.innerGroup.properties.testProp.env).toEqual('GROUP_INNER_GROUP_TEST_PROP');
 	});

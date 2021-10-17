@@ -1,8 +1,9 @@
 import * as convict from 'convict';
 import { constantCase } from 'change-case';
 
-const convict_format_with_validator = require('convict-format-with-validator');
-convict.addFormats(convict_format_with_validator);
+// eslint-disable-next-line @typescript-eslint/no-require-imports,@typescript-eslint/no-var-requires,@typescript-eslint/no-unsafe-assignment
+const CONVICT_FORMAT_WITH_VALIDATOR = require('convict-format-with-validator');
+convict.addFormats(CONVICT_FORMAT_WITH_VALIDATOR);
 
 
 function addEnv<T>(schema: convict.Schema<T>): convict.Schema<T> {
@@ -16,7 +17,7 @@ function addEnv<T>(schema: convict.Schema<T>): convict.Schema<T> {
 				env: constantCase(currentPath.join('_'))
 			};
 		} else if (!hasDefault) {
-			const alteredObjects: convict.Schema<T>[] = Object.entries(currentObject).map(
+			const alteredObjects: Array<convict.Schema<T>> = Object.entries(currentObject).map(
 				(entry) => {
 					const [key, value] = entry;
 					let newVal = value;
@@ -28,7 +29,7 @@ function addEnv<T>(schema: convict.Schema<T>): convict.Schema<T> {
 					} as convict.Schema<T>;
 				}
 			);
-			return Object.assign({}, ...alteredObjects);
+			return Object.assign({}, ...alteredObjects) as convict.Schema<T>;
 		} else {
 			return currentObject;
 		}
