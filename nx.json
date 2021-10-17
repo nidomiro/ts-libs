@@ -2,7 +2,7 @@
 	"extends": "@nrwl/workspace/presets/npm.json",
 	"npmScope": "ts-tools",
 	"affected": {
-		"defaultBase": "master"
+		"defaultBase": "origin/main"
 	},
 	"tasksRunnerOptions": {
 		"default": {
