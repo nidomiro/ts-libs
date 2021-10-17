@@ -1,4 +1,37 @@
 {
-  "name": "@nidomiro/config-helper",
-  "version": "0.0.1"
+	"name": "@nidomiro/config-helper",
+	"version": "0.0.1",
+	"private": false,
+	"license": "MIT",
+	"description": "A library to make configuring microservices easier",
+	"author": {
+		"name": "Niclas Roßberger",
+		"url": "https://nidomiro.de"
+	},
+	"bugs": {
+		"url": "https://github.com/nidomiro/ts-tools/issues"
+	},
+	"homepage": "https://github.com/nidomiro/ts-tools/tree/main/packages/config-helper",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/nidomiro/ts-tools.git",
+		"directory": "packages/config-helper"
+	},
+	"keywords": [
+		"configuration",
+		"config",
+		"conf",
+		"key value store",
+		"schema",
+		"nested",
+		"validation",
+		"customize",
+		"env",
+		"environment",
+		"json",
+		"yaml",
+		"toml",
+		"ts",
+		"typescript"
+	]
 }
