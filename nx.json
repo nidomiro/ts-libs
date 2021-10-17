@@ -1,6 +1,6 @@
 {
 	"extends": "@nrwl/workspace/presets/npm.json",
-	"npmScope": "ts-libs",
+	"npmScope": "ts-tools",
 	"affected": {
 		"defaultBase": "master"
 	},
