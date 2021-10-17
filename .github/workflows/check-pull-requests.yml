@@ -1,9 +1,9 @@
 name: Test and Lint
 
 on:
-    push:
-        branches-ignore:
-            - 'main'
+    pull_request:
+        branches:
+            - "**"
 
 jobs:
     lint:
@@ -17,7 +17,7 @@ jobs:
                     node-version: 14
                     cache: 'yarn'
             -   run: yarn
-            -   run: yarn nx affected:lint --parallel
+            -   run: yarn nx affected:lint --base=origin/main --parallel
     test:
         runs-on: ubuntu-latest
         steps:
@@ -29,7 +29,7 @@ jobs:
                     node-version: 14
                     cache: 'yarn'
             -   run: yarn
-            -   run: yarn nx affected:test --parallel
+            -   run: yarn nx affected:test --base=origin/main --parallel
     build:
         runs-on: ubuntu-latest
         steps:
@@ -41,4 +41,4 @@ jobs:
                     node-version: 14
                     cache: 'yarn'
             -   run: yarn
-            -   run: yarn nx affected:build --parallel --production
+            -   run: yarn nx affected:build --base=origin/main --parallel --production
