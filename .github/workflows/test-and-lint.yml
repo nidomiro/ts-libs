@@ -14,7 +14,7 @@ jobs:
                     fetch-depth: 0
             -   uses: actions/setup-node@v2
                 with:
-                    node-version: 14
+                    node-version: 16
                     cache: 'yarn'
             -   run: yarn
             -   run: yarn nx affected:lint --parallel
@@ -26,7 +26,7 @@ jobs:
                     fetch-depth: 0
             -   uses: actions/setup-node@v2
                 with:
-                    node-version: 14
+                    node-version: 16
                     cache: 'yarn'
             -   run: yarn
             -   run: yarn nx affected:test --parallel
@@ -38,7 +38,7 @@ jobs:
                     fetch-depth: 0
             -   uses: actions/setup-node@v2
                 with:
-                    node-version: 14
+                    node-version: 16
                     cache: 'yarn'
             -   run: yarn
             -   run: yarn nx affected:build --parallel --production
