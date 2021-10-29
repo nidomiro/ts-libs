@@ -48,15 +48,19 @@ jobs:
                     git config user.name "${GITHUB_ACTOR}"
                     git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
             -   run: yarn
-            -   run: yarn nx affected --target=bump-version --parallel --push
+            -   name: bump version
+                run: yarn nx affected --target=bump-version --parallel --push
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             -   name: build
                 run: yarn nx affected:build --parallel --production
 
-            -   run: echo _auth=${{ secrets.NPM_PUBLSH_KEY }} >> .npmrc
-            -   run: echo email=${{ secrets.NPM_PUBLSH_EMAIL }}  >> .npmrc
+            -   run: echo _auth=$NPM_PUBLSH_KEY >> .npmrc
+            -   run: echo email=$NPM_PUBLSH_EMAIL  >> .npmrc
             -   run: echo always-auth=true >> .npmrc
             -   name: publish
                 run: yarn nx affected --target=publish-npm --parallel
+                env:
+                    NPM_PUBLSH_KEY: ${{ secrets.NPM_PUBLSH_KEY }}
+                    NPM_PUBLSH_EMAIL: ${{ secrets.NPM_PUBLSH_EMAIL }}
