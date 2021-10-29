@@ -34,6 +34,19 @@
 			"options": {
 				"versionTagPrefix": "${target}@"
 			}
+		},
+		"publish-npm": {
+			"executor": "ngx-deploy-npm:deploy",
+			"options": {
+				"access": "public",
+				"no-build": true
+			},
+			"dependsOn": [
+				{
+					"target": "build",
+					"projects": "self"
+				}
+			]
 		}
 	},
 	"tags": []
