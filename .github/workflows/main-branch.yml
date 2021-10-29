@@ -40,8 +40,14 @@ jobs:
                 with:
                     node-version: 16
                     cache: 'yarn'
+            -   name: git config
+                run: |
+                    git config user.name "${GITHUB_ACTOR}"
+                    git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
             -   run: yarn
-            -   run: yarn nx affected:bump-version --parallel
+            -   run: yarn nx affected --target=bump-version --parallel --push
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     build:
         runs-on: ubuntu-latest
         steps:
@@ -68,4 +74,4 @@ jobs:
             -   run: echo _auth=$NPM_PUBLSH_KEY >> .npmrc
             -   run: echo email=$NPM_PUBLSH_EMAIL  >> .npmrc
             -   run: echo always-auth=true >> .npmrc
-            -   run: yarn nx affected:publish-npm --parallel
+            -   run: yarn nx affected --target=publish-npm --parallel
