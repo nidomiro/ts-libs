@@ -1,0 +1,71 @@
+name: Test and Lint
+
+on:
+    push:
+        branches:
+            - 'main'
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+            -   uses: actions/setup-node@v2
+                with:
+                    node-version: 16
+                    cache: 'yarn'
+            -   run: yarn
+            -   run: yarn nx affected:lint --parallel
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+            -   uses: actions/setup-node@v2
+                with:
+                    node-version: 16
+                    cache: 'yarn'
+            -   run: yarn
+            -   run: yarn nx affected:test --parallel
+    version-bump:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+            -   uses: actions/setup-node@v2
+                with:
+                    node-version: 16
+                    cache: 'yarn'
+            -   run: yarn
+            -   run: yarn nx affected:bump-version --parallel
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+            -   uses: actions/setup-node@v2
+                with:
+                    node-version: 16
+                    cache: 'yarn'
+            -   run: yarn
+            -   run: yarn nx affected:build --parallel --production
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+            -   uses: actions/setup-node@v2
+                with:
+                    node-version: 16
+                    cache: 'yarn'
+            -   run: yarn
+            -   run: echo _auth=$NPM_PUBLSH_KEY >> .npmrc
+            -   run: echo email=$NPM_PUBLSH_EMAIL  >> .npmrc
+            -   run: echo always-auth=true >> .npmrc
+            -   run: yarn nx affected:publish-npm --parallel
