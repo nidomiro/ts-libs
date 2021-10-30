@@ -5056,10 +5056,10 @@ neo-async@^2.6.0, neo-async@^2.6.2:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
-ngx-deploy-npm@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/ngx-deploy-npm/-/ngx-deploy-npm-3.0.2.tgz#0e7be292f1e0a2b6c7970ec05f3e0bffd8769465"
-  integrity sha512-/09vMgVk/PA4AuHuqyYjORRpTTVSrXf3XU1HbdHtrve4+3ijoxWb9Uh/1swt3uprOlXFt+XaA1wLfvy2Lnqvxw==
+ngx-deploy-npm@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/ngx-deploy-npm/-/ngx-deploy-npm-3.0.3.tgz#7a3b99d0c061e414bdb35712ea479078e74dca52"
+  integrity sha512-A7j07RYZRYxHjVlkskvbvFHXYhur9H0a8Rdqek7QRFcNTiVo4KWeVqNRbrdqw5HLdVcAEpRxcSao4zAWlCu64g==
   dependencies:
     "@nrwl/devkit" "13.0.2"
 
