@@ -22,7 +22,7 @@ jobs:
                 with:
                     fetch-depth: 0
             -   uses: ./.github/actions/setup
-            -   run: yarn nx affected:test--base=latest-release --parallel
+            -   run: yarn nx affected:test --base=latest-release --parallel
     publish:
         runs-on: ubuntu-latest
         needs:
