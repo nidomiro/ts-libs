@@ -15,7 +15,7 @@ jobs:
             -   uses: actions/checkout@v2
                 with:
                     fetch-depth: 0
-            -   uses: ./.github/actions/setup
+            -   uses: .github/actions/setup
             -   run: yarn nx affected:lint --base=origin/main --parallel
     test:
         runs-on: ubuntu-latest
@@ -23,7 +23,7 @@ jobs:
             -   uses: actions/checkout@v2
                 with:
                     fetch-depth: 0
-            -   uses: ./.github/actions/setup
+            -   uses: .github/actions/setup
             -   run: yarn nx affected:test --base=origin/main --parallel
     build:
         runs-on: ubuntu-latest
@@ -31,5 +31,5 @@ jobs:
             -   uses: actions/checkout@v2
                 with:
                     fetch-depth: 0
-            -   uses: ./.github/actions/setup
+            -   uses: .github/actions/setup
             -   run: yarn nx affected:build --base=origin/main --parallel --production
