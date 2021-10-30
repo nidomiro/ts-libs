@@ -4,7 +4,6 @@ on:
     push:
         branches:
             - 'main'
-            - 'ci/ci_improvements'
 
 jobs:
     lint:
@@ -43,7 +42,7 @@ jobs:
                 run: yarn nx affected:build --parallel --production
 
             -   name: publish to npm
-                run: yarn nx affected --target=publish-npm --base=latest-release --parallel --dry-run
+                run: yarn nx affected --target=publish-npm --base=latest-release --parallel
                 env:
                     NPM_PUBLSH_KEY: ${{ secrets.NPM_PUBLSH_KEY }}
                     NPM_PUBLSH_EMAIL: ${{ secrets.NPM_PUBLSH_EMAIL }}
