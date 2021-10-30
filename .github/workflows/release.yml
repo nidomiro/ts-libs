@@ -55,4 +55,4 @@ jobs:
                 run: git push --tags
 
             -   name: move latest-release to current commit
-                run: git tag -f -a latest-release -m latest-release && git push -f tags
+                run: git tag -f -a latest-release -m latest-release && git push -f --tags
