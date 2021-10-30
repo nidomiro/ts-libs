@@ -49,7 +49,7 @@ jobs:
                     NPM_PUBLSH_EMAIL: ${{ secrets.NPM_PUBLSH_EMAIL }}
 
             -   name: publish to github
-                run: yarn nx affected --target=publish-github --base=latest-release --parallel --draft
+                run: yarn nx affected --target=publish-github --base=latest-release --parallel --draft="a"
 
             -   name: push tags
                 run: git push --tags
