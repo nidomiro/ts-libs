@@ -1,0 +1,35 @@
+name: Setup
+description: Setup Node.js and install dependencies
+inputs:
+    node-version:
+        description: Node.js version
+        required: false
+        default: '16'
+
+runs:
+    using: composite
+    steps:
+        -   uses: actions/checkout@v2
+            with:
+                fetch-depth: 0
+
+        -   name: git config
+            shell: bash
+            run: |
+                git config user.name "Github Actions"
+                git config user.email "-"
+
+        -   uses: actions/setup-node@v2
+            with:
+                node-version: ${{ inputs.node-version }}
+                cache: 'yarn'
+
+        -   name: setup .npmrc
+            shell: bash
+            run: |
+                echo _auth=$NPM_PUBLSH_KEY >> .npmrc
+                echo email=$NPM_PUBLSH_EMAIL  >> .npmrc
+                echo always-auth=true >> .npmrc
+
+        -   run: yarn install --frozen-lockfile --no-progress --non-interactive --prefer-offline
+            shell: bash

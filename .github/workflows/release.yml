@@ -1,0 +1,57 @@
+name: Test and Lint
+
+on:
+    push:
+        branches:
+            - 'main'
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+            -   uses: ./.github/actions/setup
+            -   run: yarn nx affected:lint --base=latest-release --parallel
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+            -   uses: ./.github/actions/setup
+            -   run: yarn nx affected:test --base=latest-release --parallel
+    publish:
+        runs-on: ubuntu-latest
+        needs:
+            - lint
+            - test
+        steps:
+            -   uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+            -   uses: ./.github/actions/setup
+
+            -   name: bump version
+                run: yarn nx affected --target=bump-version --base=latest-release --parallel
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            -   name: build
+                run: yarn nx affected:build --parallel --production
+
+            -   name: publish to npm
+                run: yarn nx affected --target=publish-npm --base=latest-release --parallel
+                env:
+                    NPM_PUBLSH_KEY: ${{ secrets.NPM_PUBLSH_KEY }}
+                    NPM_PUBLSH_EMAIL: ${{ secrets.NPM_PUBLSH_EMAIL }}
+
+#            -   name: publish to github
+#                run: yarn nx affected --target=publish-github --base=latest-release --parallel --draft="a"
+
+            -   name: push commit and tags
+                run: git push && git push --tags
+
+            -   name: move latest-release to current commit
+                run: git tag -f -a latest-release -m latest-release && git push -f --tags

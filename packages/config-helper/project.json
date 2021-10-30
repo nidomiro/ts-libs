@@ -47,6 +47,13 @@
 					"projects": "self"
 				}
 			]
+		},
+		"publish-github": {
+			"executor": "@jscutlery/semver:github",
+			"options": {
+				"tag": "${tag}",
+				"notesFile": "packages/config-helper/CHANGELOG.md"
+			}
 		}
 	},
 	"tags": []
