@@ -28,3 +28,4 @@ runs:
         -   run: echo always-auth=true >> .npmrc
 
         -   run: yarn install --frozen-lockfile --no-progress --non-interactive --prefer-offline
+            shell: bash
