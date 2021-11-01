@@ -33,17 +33,13 @@ jobs:
                     fetch-depth: 0
             -   uses: ./.github/actions/setup
 
-            -   name: bump version
-                run: yarn nx affected --target=bump-version --base=latest-release --parallel
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
             -   name: build
                 run: yarn nx affected:build --parallel --production
 
-            -   name: publish to npm
-                run: npx nx affected --target=publish-npm --base=latest-release --parallel
+            -   name: bump version and release it
+                run: npx nx affected --target=release-new-version --base=latest-release --parallel
                 env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLSH_KEY }}
                     NPM_PUBLSH_KEY: ${{ secrets.NPM_PUBLSH_KEY }}
                     NPM_PUBLSH_EMAIL: ${{ secrets.NPM_PUBLSH_EMAIL }}

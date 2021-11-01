@@ -29,17 +29,18 @@
 				"passWithNoTests": true
 			}
 		},
-		"bump-version": {
+		"release-new-version": {
 			"executor": "@jscutlery/semver:version",
 			"options": {
-				"versionTagPrefix": "${target}@"
+				"versionTagPrefix": "${target}@",
+				"postTargets": ["${target}:publish-npm"]
 			}
 		},
 		"publish-npm": {
 			"executor": "ngx-deploy-npm:deploy",
 			"options": {
 				"access": "public",
-				"no-build": true
+				"noBuild": true
 			},
 			"dependsOn": [
 				{
