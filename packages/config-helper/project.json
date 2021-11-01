@@ -14,6 +14,12 @@
 				"assets": ["packages/config-helper/*.md"]
 			}
 		},
+		"build-production": {
+			"executor": "@nrwl/workspace:run-commands",
+			"options": {
+				"command": "yarn nx run config-helper:build --production"
+			}
+		},
 		"lint": {
 			"executor": "@nrwl/linter:eslint",
 			"outputs": ["{options.outputFile}"],
@@ -34,6 +40,7 @@
 			"options": {
 				"versionTagPrefix": "${target}@",
 				"postTargets": [
+					"config-helper:build-production",
 					"config-helper:publish-npm",
 					"config-helper:publish-github"
 				]
