@@ -12,13 +12,18 @@
 				"packageJson": "packages/config-helper/package.json",
 				"main": "packages/config-helper/src/index.ts",
 				"assets": ["packages/config-helper/*.md"]
-			}
-		},
-		"build-production": {
-			"executor": "@nrwl/workspace:run-commands",
-			"options": {
-				"command": "yarn nx run config-helper:build --production"
-			}
+			},
+			"configurations": {
+				"production": {
+					"optimization": true
+				}
+			},
+			"dependsOn": [
+				{
+					"target": "build",
+					"projects": "dependencies"
+				}
+			]
 		},
 		"lint": {
 			"executor": "@nrwl/linter:eslint",
@@ -40,7 +45,7 @@
 			"options": {
 				"versionTagPrefix": "${target}@",
 				"postTargets": [
-					"config-helper:build-production",
+					"config-helper:build:production",
 					"config-helper:publish-npm",
 					"config-helper:publish-github"
 				]
