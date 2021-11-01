@@ -34,7 +34,7 @@ jobs:
             -   uses: ./.github/actions/setup
 
             -   name: build
-                run: yarn nx affected:build --parallel --production
+                run: yarn nx affected:build --parallel --prod
 
             -   name: bump version and release it
                 run: npx nx affected --target=release-new-version --base=latest-release --parallel
@@ -44,11 +44,8 @@ jobs:
                     NPM_PUBLSH_KEY: ${{ secrets.NPM_PUBLSH_KEY }}
                     NPM_PUBLSH_EMAIL: ${{ secrets.NPM_PUBLSH_EMAIL }}
 
-#            -   name: publish to github
-#                run: yarn nx affected --target=publish-github --base=latest-release --parallel --draft="a"
-
             -   name: push commit and tags
-                run: git push || true; git push --tags || true
+                run: git push || true; git push -f --tags
 
             -   name: move latest-release to current commit
                 run: git tag -f -a latest-release -m latest-release && git push -f --tags
