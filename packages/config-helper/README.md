@@ -56,7 +56,7 @@ const config = createConfig({
 
 If you want to more information, you can head over to: https://github.com/mozilla/node-convict/tree/master/packages/convict#usage
 
-### Custom Config
+### Config options
 This library provides some additional options:
 
 ```typescript

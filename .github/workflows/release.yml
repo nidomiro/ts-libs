@@ -48,7 +48,7 @@ jobs:
 #                run: yarn nx affected --target=publish-github --base=latest-release --parallel --draft="a"
 
             -   name: push commit and tags
-                run: git push && git push --tags
+                run: git push || true; git push --tags || true
 
             -   name: move latest-release to current commit
                 run: git tag -f -a latest-release -m latest-release && git push -f --tags
