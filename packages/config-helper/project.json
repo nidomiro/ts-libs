@@ -33,7 +33,10 @@
 			"executor": "@jscutlery/semver:version",
 			"options": {
 				"versionTagPrefix": "${target}@",
-				"postTargets": ["${target}:publish-npm"]
+				"postTargets": [
+					"config-helper:publish-npm",
+					"config-helper:publish-github"
+				]
 			}
 		},
 		"publish-npm": {
