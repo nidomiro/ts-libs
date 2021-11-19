@@ -4,6 +4,7 @@ import { Config } from "./config";
 import { ConfigOptions } from './config-options';
 import { NormalizedSchema, NormalizedSchemaObj } from "./normalized-schema";
 import { prefixStringIfDefined } from "./util";
+import { ConfigDefaultImpl } from "./config-default-impl";
 
 
 interface SchemaObjectNormalizeOptions {
@@ -12,7 +13,7 @@ interface SchemaObjectNormalizeOptions {
 	currentPath: string[]
 }
 
-function normalizeSchemaObject<T>(obj: SchemaObj<T>, opts: SchemaObjectNormalizeOptions ): NormalizedSchemaObj<T> {
+export function normalizeSchemaObject<T>(obj: SchemaObj<T>, opts: SchemaObjectNormalizeOptions ): NormalizedSchemaObj<T> {
 	const {existingEnvPrefix, envPrefix, currentPath} = opts
 
 	return {
@@ -28,7 +29,7 @@ function normalizeSchemaObject<T>(obj: SchemaObj<T>, opts: SchemaObjectNormalize
 
 
 
-function normalizeSchema<T>(schema: Schema<T>, opts?: ConfigOptions ): NormalizedSchema<T> {
+export function normalizeSchema<T>(schema: Schema<T>, opts?: ConfigOptions ): NormalizedSchema<T> {
 
 	let envPrefix = ''
 	if(opts?.envPrefix != null && opts.envPrefix.trim().length > 0) {
@@ -65,9 +66,6 @@ function normalizeSchema<T>(schema: Schema<T>, opts?: ConfigOptions ): Normalize
 
 
 export function createConfig<T>(schema: Schema<T>, opts?: ConfigOptions): Config<T> {
-	return {
-		getSchema(): NormalizedSchema<T> {
-			return normalizeSchema(schema, opts)
-		},
-	};
+
+	return new ConfigDefaultImpl(schema, opts)
 }

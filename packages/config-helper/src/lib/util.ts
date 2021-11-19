@@ -10,3 +10,4 @@ export function prefixStringIfDefined(prefix: string, str: string | null | undef
 	}
 	return prefix + str
 }
+

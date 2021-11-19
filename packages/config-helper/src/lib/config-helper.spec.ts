@@ -1,96 +1,142 @@
 import { createConfig } from './config-helper';
 
 describe('configHelper', () => {
-	it('should add env var to schema on first level', () => {
-		const config = createConfig({
-			testProp: {
-				default: 'testPropValue',
-			},
-		});
 
-		expect(config.getSchema()).toHaveProperty('testProp.env');
-		expect(config.getSchema().testProp.env).toEqual('TEST_PROP');
-	});
+	describe('schema tests', () => {
 
-	it('should keep existing env var definitions', () => {
-		const config = createConfig({
-			testProp: {
-				default: 'testPropValue',
-				env: 'TEST_ENV_VAR',
-			},
-		});
-
-		expect(config.getSchema()).toHaveProperty('testProp.env');
-		expect(config.getSchema().testProp.env).toEqual('TEST_ENV_VAR');
-	});
-
-	it('should add env var definitions to nested config', () => {
-		const config = createConfig({
-			group: {
+		it('should add env var to schema on first level', () => {
+			const config = createConfig({
 				testProp: {
 					default: 'testPropValue',
 				},
-				innerGroup: {
+			});
+
+			expect(config.getSchema().testProp.env).toEqual('TEST_PROP');
+		});
+
+		it('should keep existing env var definitions', () => {
+			const config = createConfig({
+				testProp: {
+					default: 'testPropValue',
+					env: 'TEST_ENV_VAR',
+				},
+			});
+
+			expect(config.getSchema().testProp.env).toEqual('TEST_ENV_VAR');
+		});
+
+		it('should add env var definitions to nested config', () => {
+			const config = createConfig({
+				group: {
 					testProp: {
 						default: 'testPropValue',
 					},
+					innerGroup: {
+						testProp: {
+							default: 'testPropValue',
+						},
+					},
 				},
-			},
+			});
+
+			expect(config.getSchema().group.testProp.env).toEqual('GROUP_TEST_PROP');
+			expect(config.getSchema().group.innerGroup.testProp.env).toEqual('GROUP_INNER_GROUP_TEST_PROP');
 		});
 
-		expect(config.getSchema()).toHaveProperty('group.testProp.env');
+		describe('env-var prefix tests', () => {
+			it('should prefix generated env-vars', () => {
+				const config = createConfig(
+					{
+						testProp: {
+							default: 'testPropValue',
+						},
+					},
+					{
+						envPrefix: 'PREFIX',
+					}
+				);
 
-		expect(config.getSchema().group.testProp.env).toEqual('GROUP_TEST_PROP');
+				expect(config.getSchema().testProp.env).toEqual('PREFIX_TEST_PROP');
+			});
 
-		expect(config.getSchema()).toHaveProperty('group.innerGroup.testProp.env');
-		expect(config.getSchema().group.innerGroup.testProp.env).toEqual(
-			'GROUP_INNER_GROUP_TEST_PROP'
-		);
-	});
+			it('should not prefix existing env-vars if not configured', () => {
+				const config = createConfig(
+					{
+						testProp: {
+							default: 'testPropValue',
+							env: 'EXISTING_PROP',
+						},
+					},
+					{
+						envPrefix: 'PREFIX',
+					}
+				);
 
-	describe('env-var prefix tests', () => {
+				expect(config.getSchema().testProp.env).toEqual('EXISTING_PROP');
+			});
 
-		it('should prefix generated env-vars', () => {
+			it('should prefix existing env-vars if configured', () => {
+				const config = createConfig(
+					{
+						testProp: {
+							default: 'testPropValue',
+							env: 'EXISTING_PROP',
+						},
+					},
+					{
+						envPrefix: 'PREFIX',
+						prefixExistingEnv: true,
+					}
+				);
+
+				expect(config.getSchema().testProp.env).toEqual('PREFIX_EXISTING_PROP');
+			});
+		});
+	})
+
+	describe('env tests', () => {
+
+
+		it('should use process.env as default env-source', () => {
+			process.env['TEST_PROP'] = 'TestPropValueFromProcessEnv'
+			const config = createConfig({
+				testProp: {
+					default: 'testPropValue',
+				},
+			});
+
+			expect(config.getProperties().testProp).toEqual('TestPropValueFromProcessEnv');
+		})
+
+		it('env should be overrideable from config', () => {
 			const config = createConfig({
 				testProp: {
 					default: 'testPropValue',
 				},
 			}, {
-				envPrefix: 'PREFIX'
+				env: {
+					// eslint-disable-next-line @typescript-eslint/naming-convention
+					'TEST_PROP': 'TestPropValueFromConfigEnv'
+				}
 			});
 
-			expect(config.getSchema()).toHaveProperty('testProp.env');
-			expect(config.getSchema().testProp.env).toEqual('PREFIX_TEST_PROP');
-		});
+			expect(config.getProperties().testProp).toEqual('TestPropValueFromConfigEnv');
+		})
 
-		it('should not prefix existing env-vars if not configured', () => {
+
+		it('properties should be nullable for optional types', () => {
 			const config = createConfig({
 				testProp: {
-					default: 'testPropValue',
-					env: 'EXISTING_PROP'
+					default: true,
+					optional: true
 				},
-			}, {
-				envPrefix: 'PREFIX'
 			});
 
-			expect(config.getSchema()).toHaveProperty('testProp.env');
-			expect(config.getSchema().testProp.env).toEqual('EXISTING_PROP');
-		});
+			config.getProperties().testProp
 
-		it('should prefix existing env-vars if configured', () => {
-			const config = createConfig({
-				testProp: {
-					default: 'testPropValue',
-					env: 'EXISTING_PROP'
-				},
-			}, {
-				envPrefix: 'PREFIX',
-				prefixExistingEnv: true,
-			});
-
-			expect(config.getSchema()).toHaveProperty('testProp.env');
-			expect(config.getSchema().testProp.env).toEqual('PREFIX_EXISTING_PROP');
-		});
+			expect(config.getProperties().testProp).toEqual('TestPropValueFromConfigEnv');
+		})
 
 	})
 });
+

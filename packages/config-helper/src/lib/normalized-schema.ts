@@ -1,13 +1,17 @@
 
 export interface NormalizedSchemaObj<T> {
-	default: T | null
-	format: (val: unknown) => asserts val is T;
+	default: T | null;
+	transformer: (val: unknown) => T;
 	env: string;
 	maskValueInToString: boolean;
 	description: string | null;
-	optional: boolean
+	optional: boolean;
 }
 
 export type NormalizedSchema<T> = {
 	[P in keyof T]: T[P] extends { default: unknown } ? NormalizedSchemaObj<T[P]['default']> : NormalizedSchema<T[P]>;
 };
+
+export function isNormalizedSchemaObject<T>(x: NormalizedSchema<T> | NormalizedSchemaObj<T>): x is NormalizedSchemaObj<T> {
+	return 'default' in x;
+}

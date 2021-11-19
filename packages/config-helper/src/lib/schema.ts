@@ -1,6 +1,6 @@
 export interface SchemaObj<T> {
 	default: T | null;
-	format?: (val: unknown) => asserts val is T;
+	transformer?: (val: unknown) => T;
 	env?: string;
 	maskValueInToString?: boolean;
 	description?: string;
