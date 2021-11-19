@@ -38,11 +38,11 @@ describe('configHelper', () => {
 			},
 		});
 
-		expect(config.getSchema()).toHaveProperty('group.properties.testProp.env');
+		expect(config.getSchema()).toHaveProperty('group.testProp.env');
 
 		expect(config.getSchema().group.testProp.env).toEqual('GROUP_TEST_PROP');
 
-		expect(config.getSchema()).toHaveProperty('group.properties.innerGroup.properties.testProp.env');
+		expect(config.getSchema()).toHaveProperty('group.innerGroup.testProp.env');
 		expect(config.getSchema().group.innerGroup.testProp.env).toEqual(
 			'GROUP_INNER_GROUP_TEST_PROP'
 		);

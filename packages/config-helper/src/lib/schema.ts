@@ -11,3 +11,9 @@ export type Schema<T> = {
 	[P in keyof T]: T[P] extends { default: unknown } ? SchemaObj<T[P]['default']> : Schema<T[P]>;
 };
 
+
+
+export function isSchemaObject<T>(x: Schema<T> | SchemaObj<T>): x is SchemaObj<T> {
+	return 'default' in x
+}
+

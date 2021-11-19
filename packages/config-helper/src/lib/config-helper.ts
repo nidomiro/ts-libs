@@ -1,90 +1,73 @@
 import { constantCase } from 'change-case';
-import { Schema } from "./schema";
-import { NormalizedSchema } from "./normalized-schema";
+import { isSchemaObject, Schema, SchemaObj } from "./schema";
+import { Config } from "./config";
+import { ConfigOptions } from './config-options';
+import { NormalizedSchema, NormalizedSchemaObj } from "./normalized-schema";
+import { prefixStringIfDefined } from "./util";
 
 
+interface SchemaObjectNormalizeOptions {
+	existingEnvPrefix: string
+	envPrefix: string
+	currentPath: string[]
+}
 
+function normalizeSchemaObject<T>(obj: SchemaObj<T>, opts: SchemaObjectNormalizeOptions ): NormalizedSchemaObj<T> {
+	const {existingEnvPrefix, envPrefix, currentPath} = opts
 
-interface Config<T> {
-
-	getSchema(): NormalizedSchema<T>
+	return {
+		default: obj.default,
+		env: prefixStringIfDefined(existingEnvPrefix, obj.env) ?? envPrefix + constantCase(currentPath.join('_')),
+		description: obj.description ?? null,
+		format: obj.format ?? (() => true),
+		maskValueInToString: obj.maskValueInToString ?? false,
+		optional: obj.optional ?? false
+	}
 
 }
 
 
 
+function normalizeSchema<T>(schema: Schema<T>, opts?: ConfigOptions ): NormalizedSchema<T> {
 
-// function isSchemaObject<T>(x: Schema<T> | SchemaObj<T>): x is SchemaObj<T> {
-// 	return 'default' in x
-// }
-//
-// function addEnv<T>(schema: Schema<T>, opts?: ConfigOptions ): Schema<T> {
-//
-// 	let prefix = ''
-// 	if(opts?.envPrefix != null && opts.envPrefix.trim().length > 0) {
-// 		prefix = `${opts.envPrefix}_`
-// 	}
-//
-// 	let existingEnvPrefix = ''
-// 	if(opts?.prefixExistingEnv ?? false) {
-// 		existingEnvPrefix = prefix
-// 	}
-//
-// 	function iterate(currentObject: Schema<T>, currentPath: string[]): Schema<T> {
-//
-// 		if(isSchemaObject(currentObject)) {
-// 			const hasEnv = 'env' in currentObject;
-// 			if(hasEnv && currentObject.env != undefined) {
-// 				return {
-// 					...currentObject,
-// 					env: existingEnvPrefix + currentObject.env
-// 				}
-// 			} else {
-// 				return {
-// 					...currentObject,
-// 					env: prefix + constantCase(currentPath.join('_')),
-// 				};
-// 			}
-// 		} else {
-// 			const alteredObjects: Array<Schema<T>> = Object.entries(currentObject).map((entry) => {
-// 				const [key, value] = entry;
-// 				let newVal = value;
-// 				if (typeof value === 'object' && value != null) {
-// 					newVal = iterate(value as Schema<T>, [...currentPath, key]);
-// 				}
-// 				return {
-// 					[key]: newVal,
-// 				} as Schema<T>;
-// 			});
-// 			return Object.assign({}, ...alteredObjects) as Schema<T>;
-// 		}
-// 	}
-//
-// 	return iterate(schema, []);
-// }
-//
-interface ConfigOptions {
-	/**
-	 * Adds the given string as prefix of every generated env.
-	 *
-	 * default: no prefix
-	 */
-	envPrefix?: string
-	/**
-	 * Apply the envPrefix to existing env entries if true.
-	 *
-	 * default: false
-	 */
-	prefixExistingEnv?: boolean
+	let envPrefix = ''
+	if(opts?.envPrefix != null && opts.envPrefix.trim().length > 0) {
+		envPrefix = `${opts.envPrefix}_`
+	}
 
-	/**
-	 * Override the used environment
-	 *
-	 * default: process.env
-	 */
-	env?: NodeJS.ProcessEnv | undefined;
+	let existingEnvPrefix = ''
+	if(opts?.prefixExistingEnv ?? false) {
+		existingEnvPrefix = envPrefix
+	}
+
+	function iterate(currentObject: Schema<T> , currentPath: string[]): NormalizedSchema<T>
+	function iterate(currentObject: Schema<T> | SchemaObj<T>, currentPath: string[]): NormalizedSchema<T> | NormalizedSchemaObj<T> {
+
+		if(isSchemaObject(currentObject)) {
+			return normalizeSchemaObject(currentObject, {envPrefix, existingEnvPrefix, currentPath})
+		} else {
+			const alteredObjects: Array<Schema<T>> = Object.entries(currentObject).map((entry) => {
+				const [key, value] = entry;
+				let newVal = value;
+				if (typeof value === 'object' && value != null) {
+					newVal = iterate(value as Schema<T>, [...currentPath, key]);
+				}
+				return {
+					[key]: newVal,
+				} as Schema<T>;
+			});
+			return Object.assign({}, ...alteredObjects);
+		}
+	}
+
+	return iterate(schema, []);
 }
+
 
 export function createConfig<T>(schema: Schema<T>, opts?: ConfigOptions): Config<T> {
-	// return convict(addEnv(schema, opts), opts);
+	return {
+		getSchema(): NormalizedSchema<T> {
+			return normalizeSchema(schema, opts)
+		},
+	};
 }
