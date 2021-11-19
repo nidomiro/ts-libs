@@ -1,61 +1,69 @@
-import * as convict from 'convict';
 import { constantCase } from 'change-case';
-import { SchemaObj } from 'convict';
+import { Schema } from "./schema";
+import { NormalizedSchema } from "./normalized-schema";
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports,@typescript-eslint/no-var-requires,@typescript-eslint/no-unsafe-assignment
-const CONVICT_FORMAT_WITH_VALIDATOR = require('convict-format-with-validator');
-convict.addFormats(CONVICT_FORMAT_WITH_VALIDATOR);
 
-function isSchemaObject<T>(x: convict.Schema<T> | SchemaObj<T>): x is SchemaObj<T> {
-	return 'default' in x
+
+
+interface Config<T> {
+
+	getSchema(): NormalizedSchema<T>
+
 }
 
-function addEnv<T>(schema: convict.Schema<T>, opts?: ConfigOptions ): convict.Schema<T> {
 
-	let prefix = ''
-	if(opts?.envPrefix != null && opts.envPrefix.trim().length > 0) {
-		prefix = `${opts.envPrefix}_`
-	}
 
-	let existingEnvPrefix = ''
-	if(opts?.prefixExistingEnv ?? false) {
-		existingEnvPrefix = prefix
-	}
 
-	function iterate(currentObject: convict.Schema<T>, currentPath: string[]): convict.Schema<T> {
-
-		if(isSchemaObject(currentObject)) {
-			const hasEnv = 'env' in currentObject;
-			if(hasEnv && currentObject.env != undefined) {
-				return {
-					...currentObject,
-					env: existingEnvPrefix + currentObject.env
-				}
-			} else {
-				return {
-					...currentObject,
-					env: prefix + constantCase(currentPath.join('_')),
-				};
-			}
-		} else {
-			const alteredObjects: Array<convict.Schema<T>> = Object.entries(currentObject).map((entry) => {
-				const [key, value] = entry;
-				let newVal = value;
-				if (typeof value === 'object' && value != null) {
-					newVal = iterate(value as convict.Schema<T>, [...currentPath, key]);
-				}
-				return {
-					[key]: newVal,
-				} as convict.Schema<T>;
-			});
-			return Object.assign({}, ...alteredObjects) as convict.Schema<T>;
-		}
-	}
-
-	return iterate(schema, []);
-}
-
-interface ConfigOptions extends convict.Options {
+// function isSchemaObject<T>(x: Schema<T> | SchemaObj<T>): x is SchemaObj<T> {
+// 	return 'default' in x
+// }
+//
+// function addEnv<T>(schema: Schema<T>, opts?: ConfigOptions ): Schema<T> {
+//
+// 	let prefix = ''
+// 	if(opts?.envPrefix != null && opts.envPrefix.trim().length > 0) {
+// 		prefix = `${opts.envPrefix}_`
+// 	}
+//
+// 	let existingEnvPrefix = ''
+// 	if(opts?.prefixExistingEnv ?? false) {
+// 		existingEnvPrefix = prefix
+// 	}
+//
+// 	function iterate(currentObject: Schema<T>, currentPath: string[]): Schema<T> {
+//
+// 		if(isSchemaObject(currentObject)) {
+// 			const hasEnv = 'env' in currentObject;
+// 			if(hasEnv && currentObject.env != undefined) {
+// 				return {
+// 					...currentObject,
+// 					env: existingEnvPrefix + currentObject.env
+// 				}
+// 			} else {
+// 				return {
+// 					...currentObject,
+// 					env: prefix + constantCase(currentPath.join('_')),
+// 				};
+// 			}
+// 		} else {
+// 			const alteredObjects: Array<Schema<T>> = Object.entries(currentObject).map((entry) => {
+// 				const [key, value] = entry;
+// 				let newVal = value;
+// 				if (typeof value === 'object' && value != null) {
+// 					newVal = iterate(value as Schema<T>, [...currentPath, key]);
+// 				}
+// 				return {
+// 					[key]: newVal,
+// 				} as Schema<T>;
+// 			});
+// 			return Object.assign({}, ...alteredObjects) as Schema<T>;
+// 		}
+// 	}
+//
+// 	return iterate(schema, []);
+// }
+//
+interface ConfigOptions {
 	/**
 	 * Adds the given string as prefix of every generated env.
 	 *
@@ -68,8 +76,15 @@ interface ConfigOptions extends convict.Options {
 	 * default: false
 	 */
 	prefixExistingEnv?: boolean
+
+	/**
+	 * Override the used environment
+	 *
+	 * default: process.env
+	 */
+	env?: NodeJS.ProcessEnv | undefined;
 }
 
-export function createConfig<T>(schema: convict.Schema<T>, opts?: ConfigOptions): convict.Config<T> {
-	return convict(addEnv(schema, opts), opts);
+export function createConfig<T>(schema: Schema<T>, opts?: ConfigOptions): Config<T> {
+	// return convict(addEnv(schema, opts), opts);
 }

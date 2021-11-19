@@ -8,10 +8,8 @@ describe('configHelper', () => {
 			},
 		});
 
-		expect(config.getSchema().properties).toHaveProperty('testProp.env');
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-expect-error
-		expect(config.getSchema().properties['testProp']['env']).toEqual('TEST_PROP');
+		expect(config.getSchema()).toHaveProperty('testProp.env');
+		expect(config.getSchema().testProp.env).toEqual('TEST_PROP');
 	});
 
 	it('should keep existing env var definitions', () => {
@@ -22,10 +20,8 @@ describe('configHelper', () => {
 			},
 		});
 
-		expect(config.getSchema().properties).toHaveProperty('testProp.env');
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-expect-error
-		expect(config.getSchema().properties['testProp']['env']).toEqual('TEST_ENV_VAR');
+		expect(config.getSchema()).toHaveProperty('testProp.env');
+		expect(config.getSchema().testProp.env).toEqual('TEST_ENV_VAR');
 	});
 
 	it('should add env var definitions to nested config', () => {
@@ -42,16 +38,12 @@ describe('configHelper', () => {
 			},
 		});
 
-		expect(config.getSchema().properties).toHaveProperty('group.properties.testProp.env');
+		expect(config.getSchema()).toHaveProperty('group.properties.testProp.env');
 
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-expect-error
-		expect(config.getSchema().properties.group.properties.testProp.env).toEqual('GROUP_TEST_PROP');
+		expect(config.getSchema().group.testProp.env).toEqual('GROUP_TEST_PROP');
 
-		expect(config.getSchema().properties).toHaveProperty('group.properties.innerGroup.properties.testProp.env');
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-expect-error
-		expect(config.getSchema().properties.group.properties.innerGroup.properties.testProp.env).toEqual(
+		expect(config.getSchema()).toHaveProperty('group.properties.innerGroup.properties.testProp.env');
+		expect(config.getSchema().group.innerGroup.testProp.env).toEqual(
 			'GROUP_INNER_GROUP_TEST_PROP'
 		);
 	});
@@ -67,10 +59,8 @@ describe('configHelper', () => {
 				envPrefix: 'PREFIX'
 			});
 
-			expect(config.getSchema().properties).toHaveProperty('testProp.env');
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-expect-error
-			expect(config.getSchema().properties['testProp']['env']).toEqual('PREFIX_TEST_PROP');
+			expect(config.getSchema()).toHaveProperty('testProp.env');
+			expect(config.getSchema().testProp.env).toEqual('PREFIX_TEST_PROP');
 		});
 
 		it('should not prefix existing env-vars if not configured', () => {
@@ -83,10 +73,8 @@ describe('configHelper', () => {
 				envPrefix: 'PREFIX'
 			});
 
-			expect(config.getSchema().properties).toHaveProperty('testProp.env');
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-expect-error
-			expect(config.getSchema().properties['testProp']['env']).toEqual('EXISTING_PROP');
+			expect(config.getSchema()).toHaveProperty('testProp.env');
+			expect(config.getSchema().testProp.env).toEqual('EXISTING_PROP');
 		});
 
 		it('should prefix existing env-vars if configured', () => {
@@ -100,10 +88,8 @@ describe('configHelper', () => {
 				prefixExistingEnv: true,
 			});
 
-			expect(config.getSchema().properties).toHaveProperty('testProp.env');
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-expect-error
-			expect(config.getSchema().properties['testProp']['env']).toEqual('PREFIX_EXISTING_PROP');
+			expect(config.getSchema()).toHaveProperty('testProp.env');
+			expect(config.getSchema().testProp.env).toEqual('PREFIX_EXISTING_PROP');
 		});
 
 	})
