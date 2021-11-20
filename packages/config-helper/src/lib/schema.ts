@@ -8,7 +8,7 @@ export interface SchemaObj<T> {
 }
 
 export type Schema<T> = {
-	[P in keyof T]: T[P] extends { default: unknown } ? SchemaObj<T[P]['default']> : Schema<T[P]>;
+	[P in keyof T]: T[P] extends { default: infer U } ? SchemaObj<U> : Schema<T[P]>;
 };
 
 

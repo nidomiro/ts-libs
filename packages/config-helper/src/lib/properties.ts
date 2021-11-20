@@ -1,7 +1,7 @@
 export type Properties<T> = {
-	[P in keyof T]: T[P] extends { default: unknown, optional: true }
-		? T[P]['default'] | null
-		: T[P] extends { default: unknown }
-		? NonNullable<T[P]['default']>
+	[P in keyof T]: T[P] extends { default: infer U, optional: true }
+		? U | null
+		: T[P] extends { default: infer U }
+		? NonNullable<U>
 		: Properties<T[P]>;
 };

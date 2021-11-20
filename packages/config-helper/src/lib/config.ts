@@ -8,3 +8,6 @@ export interface Config<T> {
 	getProperties: () => Properties<T>
 
 }
+
+
+

@@ -10,7 +10,7 @@ describe('configHelper', () => {
 					default: 'testPropValue',
 				},
 			});
-
+			config.getSchema().testProp.default
 			expect(config.getSchema().testProp.env).toEqual('TEST_PROP');
 		});
 
@@ -129,6 +129,18 @@ describe('configHelper', () => {
 				testProp: {
 					default: true,
 					optional: true
+				},
+			});
+
+			config.getProperties().testProp
+
+			expect(config.getProperties().testProp).toEqual('TestPropValueFromConfigEnv');
+		})
+
+		it('properties should be non-nullable for non-optional types', () => {
+			const config = createConfig({
+				testProp: {
+					default: true
 				},
 			});
 

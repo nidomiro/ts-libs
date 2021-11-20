@@ -65,7 +65,7 @@ export function normalizeSchema<T>(schema: Schema<T>, opts?: ConfigOptions ): No
 }
 
 
-export function createConfig<T>(schema: Schema<T>, opts?: ConfigOptions): Config<T> {
+export function createConfig<T >(schema: Schema<T>, opts?: ConfigOptions): Config<T> {
 
 	return new ConfigDefaultImpl(schema, opts)
 }
