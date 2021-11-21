@@ -1,4 +1,4 @@
-import { createConfig } from './config-helper';
+import { createCConfig, createConfig } from "./config-helper";
 
 describe('configHelper', () => {
 
@@ -147,6 +147,15 @@ describe('configHelper', () => {
 			config.getProperties().testProp
 
 			expect(config.getProperties().testProp).toEqual('TestPropValueFromConfigEnv');
+
+
+			const cconfig = createCConfig({
+				testProp: {
+					default: true
+				},
+			});
+
+			cconfig.getProperties().testProp
 		})
 
 	})

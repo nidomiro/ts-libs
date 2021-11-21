@@ -1,5 +1,5 @@
 import { constantCase } from 'change-case';
-import { isSchemaObject, Schema, SchemaObj } from "./schema";
+import { CSchema, isSchemaObject, Schema, SchemaObj } from "./schema";
 import { Config } from "./config";
 import { ConfigOptions } from './config-options';
 import { NormalizedSchema, NormalizedSchemaObj } from "./normalized-schema";
@@ -69,3 +69,52 @@ export function createConfig<T >(schema: Schema<T>, opts?: ConfigOptions): Confi
 
 	return new ConfigDefaultImpl(schema, opts)
 }
+export function createCConfig<T >(schema: CSchema<T>, opts?: ConfigOptions): Config<T> {
+
+	return new ConfigDefaultImpl(schema, opts)
+}
+
+
+interface ConfigGroup<T> {}
+
+
+
+interface ConfigDefinitionCommon<T> {
+	transformer: (val: unknown) => T;
+	default: T | undefined;
+	envVar?: string;
+}
+
+interface ConfigDefinitionOptional<T> extends ConfigDefinitionCommon<T> {
+	optional: false
+}
+interface ConfigDefinitionRequired<T> extends ConfigDefinitionCommon<T>{
+	optional: true
+}
+
+type GroupContentDef<T> = {
+[P in keyof T]: ConfigDefinitionOptional<T[P]> | ConfigDefinitionRequired<T[P]>
+}
+
+export function cc<TSchema>(schema: GroupContentDef<TSchema>): TSchema {
+
+}
+
+type MustHaveNull<T> = null extends T ? T : never
+
+export function configDef<T extends {} | null>(def:{transformer: (val: unknown) => MustHaveNull<T>, optional: true, envVar?: string}): ConfigDefinitionOptional<T>
+export function configDef<T extends (null extends T ? never: {})>(def:{transformer: (val: unknown) => T | null, optional?: false, envVar?: string}): null extends T ? never : ConfigDefinitionRequired<T>
+export function configDef<T>(def:{transformer: (val: unknown) => T, optional?: boolean, envVar?: string}): ConfigDefinitionOptional<T> | ConfigDefinitionRequired<T> {
+
+}
+
+const a = cc({
+	explicitOptionalProp: configDef<string | null>({transformer: () => 'firstValue', optional: true}),
+	explicitFunctionOptionalProp: configDef({transformer: (): string| null => 'firstValue', optional: true}),
+	errorBecauseOfMissingNull: configDef({transformer: () => 'firstValue', optional: true}),
+	secondProp: configDef({transformer: () => null, optional: false}),
+	thirdProp: configDef({transformer: () => 'thirdValue'}),
+})
+
+const sP = a.secondProp
+
