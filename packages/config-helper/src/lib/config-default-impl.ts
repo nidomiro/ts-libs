@@ -2,21 +2,22 @@ import {
 	Config,
 	ConfigOptions, isNormalizedSchemaObject, isSchemaObject,
 	NormalizedSchema,
-	NormalizedSchemaObj,
+	NormalizedSchemaObj, NormalizeSchema,
 	normalizeSchema, normalizeSchemaObject,
 	Schema,
 	SchemaObj
 } from "@nidomiro/config-helper";
+import { Properties } from "./properties";
 
-export class ConfigDefaultImpl<T> implements Config<T> {
+export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Config<TSchema> {
 
-	public readonly schema: NormalizedSchema<T>
+	public readonly schema: NormalizeSchema<TSchema>
 	public readonly environment: NodeJS.ProcessEnv
 
-	private readonly originalSchema: Schema<T>
+	private readonly originalSchema: TSchema
 
 	constructor(
-		schema: Schema<T>,
+		schema: TSchema,
 		private readonly opts?: ConfigOptions
 	) {
 		this.originalSchema = schema
@@ -25,11 +26,11 @@ export class ConfigDefaultImpl<T> implements Config<T> {
 	}
 
 
-	getSchema(): NormalizedSchema<T> {
+	getSchema(): NormalizeSchema<TSchema> {
 		return this.schema;
 	}
 
-	getProperties(): T {
+	getProperties(): Properties<TSchema> {
 
 		const processNormalizedSchemaObject = <K>(propName: string, obj: NormalizedSchemaObj<K>): K | null =>  {
 			const envVarVal = this.environment[obj.env]

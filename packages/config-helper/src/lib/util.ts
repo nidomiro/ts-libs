@@ -11,3 +11,7 @@ export function prefixStringIfDefined(prefix: string, str: string | null | undef
 	return prefix + str
 }
 
+
+export type MustHaveNull<T> = null extends T ? T : never
+
+

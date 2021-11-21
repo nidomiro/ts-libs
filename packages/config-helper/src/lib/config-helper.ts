@@ -1,8 +1,8 @@
 import { constantCase } from 'change-case';
-import { CSchema, isSchemaObject, Schema, SchemaObj } from "./schema";
+import { Schema } from "./schema";
 import { Config } from "./config";
 import { ConfigOptions } from './config-options';
-import { NormalizedSchema, NormalizedSchemaObj } from "./normalized-schema";
+import { NormalizedSchema } from "./normalized-schema";
 import { prefixStringIfDefined } from "./util";
 import { ConfigDefaultImpl } from "./config-default-impl";
 
@@ -65,56 +65,20 @@ export function normalizeSchema<T>(schema: Schema<T>, opts?: ConfigOptions ): No
 }
 
 
-export function createConfig<T >(schema: Schema<T>, opts?: ConfigOptions): Config<T> {
+// export function createConfig<TProps>(schema: Schema<TProps>, opts?: ConfigOptions): Config<TProps> {
+export function createConfig<TSchema extends Schema< unknown >>(schema: TSchema, opts?: ConfigOptions): Config<TSchema> {
 
 	return new ConfigDefaultImpl(schema, opts)
 }
-export function createCConfig<T >(schema: CSchema<T>, opts?: ConfigOptions): Config<T> {
-
-	return new ConfigDefaultImpl(schema, opts)
-}
-
-
-interface ConfigGroup<T> {}
 
 
 
-interface ConfigDefinitionCommon<T> {
-	transformer: (val: unknown) => T;
-	default: T | undefined;
-	envVar?: string;
-}
+// const a = cc({
+// 	explicitOptionalProp: configDef<string | null>(() => 'firstValue', {optional: true}),
+// 	explicitFunctionOptionalProp: configDef((): string| null => 'firstValue', {optional: true}),
+// 	errorBecauseOfMissingNull: configDef(() => 'firstValue', {optional: true}),
+// 	secondProp: configDef(() => null, {optional: false}),
+// 	thirdProp: configDef(() => 'thirdValue'),
+// })
 
-interface ConfigDefinitionOptional<T> extends ConfigDefinitionCommon<T> {
-	optional: false
-}
-interface ConfigDefinitionRequired<T> extends ConfigDefinitionCommon<T>{
-	optional: true
-}
-
-type GroupContentDef<T> = {
-[P in keyof T]: ConfigDefinitionOptional<T[P]> | ConfigDefinitionRequired<T[P]>
-}
-
-export function cc<TSchema>(schema: GroupContentDef<TSchema>): TSchema {
-
-}
-
-type MustHaveNull<T> = null extends T ? T : never
-
-export function configDef<T extends {} | null>(def:{transformer: (val: unknown) => MustHaveNull<T>, optional: true, envVar?: string}): ConfigDefinitionOptional<T>
-export function configDef<T extends (null extends T ? never: {})>(def:{transformer: (val: unknown) => T | null, optional?: false, envVar?: string}): null extends T ? never : ConfigDefinitionRequired<T>
-export function configDef<T>(def:{transformer: (val: unknown) => T, optional?: boolean, envVar?: string}): ConfigDefinitionOptional<T> | ConfigDefinitionRequired<T> {
-
-}
-
-const a = cc({
-	explicitOptionalProp: configDef<string | null>({transformer: () => 'firstValue', optional: true}),
-	explicitFunctionOptionalProp: configDef({transformer: (): string| null => 'firstValue', optional: true}),
-	errorBecauseOfMissingNull: configDef({transformer: () => 'firstValue', optional: true}),
-	secondProp: configDef({transformer: () => null, optional: false}),
-	thirdProp: configDef({transformer: () => 'thirdValue'}),
-})
-
-const sP = a.secondProp
 

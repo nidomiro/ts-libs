@@ -1,62 +1,32 @@
-export interface SchemaObjCommon<T = unknown> {
-	transformer?: (val: unknown) => T;
-	env?: string;
-	[key: string]: unknown;
+import { MustHaveNull } from "./util";
+
+
+export interface ConfigDefinitionCommon<T> {
+	transformer: (val: unknown) => T;
+	envVar?: string;
 }
 
-export interface OptionalSchemaObj<T = unknown> extends SchemaObjCommon {
-	default: T;
-	optional: true;
+export interface ConfigDefinitionOptional<T> extends ConfigDefinitionCommon<T> {
+	optional: false
+}
+export interface ConfigDefinitionRequired<T> extends ConfigDefinitionCommon<T>{
+	optional: true
 }
 
-export interface RequiredSchemaObj<T = unknown> extends SchemaObjCommon {
-	default: T | null;
-	optional?: false;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-type-alias
-export type SchemaObj<T = unknown> = OptionalSchemaObj<T> | RequiredSchemaObj<T>
+export type ConfigDefinition<T> = ConfigDefinitionOptional<T> | ConfigDefinitionRequired<T>
 
 export type Schema<T> = {
-	//[P in keyof T]: T[P] extends { default: infer U } ? SchemaObj<U> : Schema<T[P]>;
-	[P in keyof T]: SchemaObj<T[P]> | Schema<T[P]>;
-};
-
-
-
-export function isSchemaObject<T>(x: Schema<T> | SchemaObj<T>): x is SchemaObj<T> {
-	return 'default' in x
+	[P in keyof T]: ConfigDefinitionOptional<T[P]> | ConfigDefinitionRequired<T[P]> | Schema<T>
 }
 
 
-export interface CSchemaObj<T = any> {
-	/**
-	 * You can define a configuration property as "required" without providing a default value.
-	 * Set its default to null and if your format doesn't accept null it will throw an error.
-	 */
-	default: T | null;
-	doc?: string | undefined;
-	/**
-	 * From the implementation:
-	 *
-	 *  format can be a:
-	 *   - predefined type, as seen below
-	 *   - an array of enumerated values, e.g. ["production", "development", "testing"]
-	 *   - built-in JavaScript type, i.e. Object, Array, String, Number, Boolean
-	 *   - function that performs validation and throws an Error on failure
-	 *
-	 * If omitted, format will be set to the value of Object.prototype.toString.call
-	 * for the default value
-	 */
-	format?: any | any[] | ((val: any) => asserts val is T) | ((val: any) => void) | undefined;
-	env?: string | undefined;
-	arg?: string | undefined;
-	sensitive?: boolean | undefined;
-	nullable?: boolean | undefined;
-	[key: string]: any;
+export function configDef<T extends {} | null>(transformer: (val: unknown) => MustHaveNull<T>, config: {optional: true, envVar?: string}): ConfigDefinitionOptional<MustHaveNull<T>>
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function configDef<T extends (null extends T ? never: {})>(transformer: (val: unknown) => T | null,  config?:{ optional?: false, envVar?: string}): null extends T ? never : ConfigDefinitionRequired<T>
+export function configDef<T>(transformer: (val: unknown) => T, config?: { optional?: boolean, envVar?: string}): ConfigDefinition<T> | ConfigDefinitionRequired<T> {
+	return {
+		transformer,
+		optional: config?.optional ?? false,
+		envVar: config?.envVar
+	}
 }
-
-export type CSchema<T> = {
-	[P in keyof T]: CSchema<T[P]> | CSchemaObj<T[P]>;
-};
-

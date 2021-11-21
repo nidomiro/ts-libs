@@ -1,11 +1,11 @@
-import { NormalizedSchema } from "@nidomiro/config-helper";
+import { NormalizeSchema, Schema } from "@nidomiro/config-helper";
 import { Properties } from "./properties";
 
-export interface Config<T> {
+export interface Config<TSchema extends Schema<unknown>> {
 
-	getSchema: () => NormalizedSchema<T>
+	getSchema: () => NormalizeSchema<TSchema>
 
-	getProperties: () => Properties<T>
+	getProperties: () => Properties<TSchema>
 
 }
 
