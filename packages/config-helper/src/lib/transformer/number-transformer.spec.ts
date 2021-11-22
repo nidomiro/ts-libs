@@ -8,11 +8,19 @@ describe('string-transformer', () => {
 	})
 
 	it('should return the default value for null', () => {
-		expect(numberTransformer(24)(null)).toEqual(24) // TODO: where to make the distinction between a explicit null value set and 'no value available'
+		expect(numberTransformer(24)(null)).toEqual(24)
 	})
 
 	it('should return null if default is not set and value is null', () => {
 		expect(numberTransformer()(null)).toEqual(null)
+	})
+
+	it('should return null if default is not set and value is empty string', () => {
+		expect(numberTransformer()('')).toEqual(null)
+	})
+
+	it('should return null if default is not set and value is white-space only string', () => {
+		expect(numberTransformer()(' \t')).toEqual(null)
 	})
 
 	it('should convert a number-string to a number', () => {
