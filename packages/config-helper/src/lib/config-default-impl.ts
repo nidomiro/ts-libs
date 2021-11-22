@@ -1,13 +1,9 @@
-import {
-	Config,
-	ConfigOptions, isNormalizedSchemaObject, isSchemaObject,
-	NormalizedSchema,
-	NormalizedSchemaObj, NormalizeSchema,
-	normalizeSchema, normalizeSchemaObject,
-	Schema,
-	SchemaObj
-} from "@nidomiro/config-helper";
 import { Properties } from "./properties";
+import { Schema } from "./schema";
+import { Config } from "./config";
+import { NormalizeSchema, NormalizedConfigDefinition, isNormalizedSchemaObject } from "./normalized-schema";
+import { ConfigOptions } from "./config-options";
+import { normalizeSchema} from "./config-helper"
 
 export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Config<TSchema> {
 
@@ -32,40 +28,35 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 
 	getProperties(): Properties<TSchema> {
 
-		const processNormalizedSchemaObject = <K>(propName: string, obj: NormalizedSchemaObj<K>): K | null =>  {
-			const envVarVal = this.environment[obj.env]
+		const processNormalizedSchemaObject = <TProp>(propName: string, obj: NormalizedConfigDefinition<TProp>): TProp | null =>  {
+			const envVarVal = this.environment[obj.envVar]
 
-			const val = envVarVal ?? obj.default
+			const val = obj.transformer(envVarVal)
 
-			if(val == null) {
-				if(obj.optional) {
-					return null
-				} else {
-					throw new Error(`${propName} has to be defined`) // TODO: replace with better error, maybe Result and no throw => accumulate errors
-
-				}
-			} else {
-				return obj.transformer(val)
+			if(val == null && !obj.optional) {
+				throw new Error(`${propName} (envVar: ${obj.envVar}) has to be defined`) // TODO: replace with better error, maybe Result and no throw => accumulate errors
 			}
-
+			return val
 		}
 
-		function iterate<K>(currentObject: NormalizedSchema<K> , currentPath: string[]): K
-		function iterate<K>(currentObject: NormalizedSchema<K> | NormalizedSchemaObj<K>, currentPath: string[]): K {
+		function iterate(currentObject: NormalizeSchema<TSchema> , currentPath: string[]): Properties<TSchema>
+		function iterate<TProp>(currentObject: NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp>, currentPath: string[]): Properties<TSchema> | TProp | null {
 
 			if(isNormalizedSchemaObject(currentObject)) {
-				return processNormalizedSchemaObject(currentObject)
+				const propPath: string = currentPath.join('.')
+				return processNormalizedSchemaObject(propPath, currentObject)
 			} else {
-				const alteredObjects: Array<NormalizedSchema<T>> = Object.entries(currentObject).map((entry) => {
+				const alteredObjects: Array<NormalizeSchema<TSchema>> = Object.entries(currentObject).map((entry) => {
 					const [key, value] = entry;
 					let newVal = value;
 					if (typeof value === 'object' && value != null) {
-						newVal = iterate(value as NormalizedSchema<T>, [...currentPath, key]);
+						newVal = iterate(value as NormalizeSchema<TSchema>, [...currentPath, key]);
 					}
 					return {
 						[key]: newVal,
-					} as NormalizedSchema<T>;
+					} as NormalizeSchema<TSchema>;
 				});
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 				return Object.assign({}, ...alteredObjects);
 			}
 		}

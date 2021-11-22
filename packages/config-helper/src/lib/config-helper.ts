@@ -1,8 +1,8 @@
 import { constantCase } from 'change-case';
-import { Schema } from "./schema";
+import { ConfigDefinition, isSchemaObject, Schema } from "./schema";
 import { Config } from "./config";
 import { ConfigOptions } from './config-options';
-import { NormalizedSchema } from "./normalized-schema";
+import { NormalizedConfigDefinition, NormalizeSchema } from "./normalized-schema";
 import { prefixStringIfDefined } from "./util";
 import { ConfigDefaultImpl } from "./config-default-impl";
 
@@ -13,23 +13,19 @@ interface SchemaObjectNormalizeOptions {
 	currentPath: string[]
 }
 
-export function normalizeSchemaObject<T>(obj: SchemaObj<T>, opts: SchemaObjectNormalizeOptions ): NormalizedSchemaObj<T> {
+export function normalizeSchemaObject<T>(obj: ConfigDefinition<T>, opts: SchemaObjectNormalizeOptions ): NormalizedConfigDefinition<T> {
 	const {existingEnvPrefix, envPrefix, currentPath} = opts
 
 	return {
-		default: obj.default,
-		env: prefixStringIfDefined(existingEnvPrefix, obj.env) ?? envPrefix + constantCase(currentPath.join('_')),
-		description: obj.description ?? null,
-		format: obj.format ?? (() => true),
-		maskValueInToString: obj.maskValueInToString ?? false,
-		optional: obj.optional ?? false
+		...obj,
+		envVar: prefixStringIfDefined(existingEnvPrefix, obj.envVar) ?? envPrefix + constantCase(currentPath.join('_')),
 	}
 
 }
 
 
 
-export function normalizeSchema<T>(schema: Schema<T>, opts?: ConfigOptions ): NormalizedSchema<T> {
+export function normalizeSchema<TSchema extends Schema<unknown>>(schema: TSchema, opts?: ConfigOptions ): NormalizeSchema<TSchema> {
 
 	let envPrefix = ''
 	if(opts?.envPrefix != null && opts.envPrefix.trim().length > 0) {
@@ -41,22 +37,23 @@ export function normalizeSchema<T>(schema: Schema<T>, opts?: ConfigOptions ): No
 		existingEnvPrefix = envPrefix
 	}
 
-	function iterate(currentObject: Schema<T> , currentPath: string[]): NormalizedSchema<T>
-	function iterate(currentObject: Schema<T> | SchemaObj<T>, currentPath: string[]): NormalizedSchema<T> | NormalizedSchemaObj<T> {
+	function iterate(currentObject: TSchema , currentPath: string[]): NormalizeSchema<TSchema>
+	function iterate<TProp>(currentObject: TSchema | ConfigDefinition<TProp>, currentPath: string[]): NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp> {
 
 		if(isSchemaObject(currentObject)) {
 			return normalizeSchemaObject(currentObject, {envPrefix, existingEnvPrefix, currentPath})
 		} else {
-			const alteredObjects: Array<Schema<T>> = Object.entries(currentObject).map((entry) => {
+			const alteredObjects: TSchema[] = Object.entries(currentObject).map((entry) => {
 				const [key, value] = entry;
 				let newVal = value;
 				if (typeof value === 'object' && value != null) {
-					newVal = iterate(value as Schema<T>, [...currentPath, key]);
+					newVal = iterate(value as TSchema, [...currentPath, key]);
 				}
 				return {
 					[key]: newVal,
-				} as Schema<T>;
+				} as TSchema;
 			});
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return Object.assign({}, ...alteredObjects);
 		}
 	}
@@ -67,7 +64,6 @@ export function normalizeSchema<T>(schema: Schema<T>, opts?: ConfigOptions ): No
 
 // export function createConfig<TProps>(schema: Schema<TProps>, opts?: ConfigOptions): Config<TProps> {
 export function createConfig<TSchema extends Schema< unknown >>(schema: TSchema, opts?: ConfigOptions): Config<TSchema> {
-
 	return new ConfigDefaultImpl(schema, opts)
 }
 

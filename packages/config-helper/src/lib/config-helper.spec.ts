@@ -1,5 +1,5 @@
 import { createConfig } from './config-helper';
-import { configDef } from '@nidomiro/config-helper';
+import { configDef } from './schema';
 
 describe('configHelper', () => {
 	describe('schema tests', () => {
