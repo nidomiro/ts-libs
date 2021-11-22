@@ -1,47 +1,50 @@
 import { constantCase } from 'change-case';
-import { ConfigDefinition, isSchemaObject, Schema } from "./schema";
-import { Config } from "./config";
+import { ConfigDefinition, isSchemaObject, Schema } from './schema';
+import { Config } from './config';
 import { ConfigOptions } from './config-options';
-import { NormalizedConfigDefinition, NormalizeSchema } from "./normalized-schema";
-import { prefixStringIfDefined } from "./util";
-import { ConfigDefaultImpl } from "./config-default-impl";
-
+import { NormalizedConfigDefinition, NormalizeSchema } from './normalized-schema';
+import { prefixStringIfDefined } from './util';
+import { ConfigDefaultImpl } from './config-default-impl';
 
 interface SchemaObjectNormalizeOptions {
-	existingEnvPrefix: string
-	envPrefix: string
-	currentPath: string[]
+	existingEnvPrefix: string;
+	envPrefix: string;
+	currentPath: string[];
 }
 
-export function normalizeSchemaObject<T>(obj: ConfigDefinition<T>, opts: SchemaObjectNormalizeOptions ): NormalizedConfigDefinition<T> {
-	const {existingEnvPrefix, envPrefix, currentPath} = opts
+export function normalizeSchemaObject<T>(
+	obj: ConfigDefinition<T>,
+	opts: SchemaObjectNormalizeOptions
+): NormalizedConfigDefinition<T> {
+	const { existingEnvPrefix, envPrefix, currentPath } = opts;
 
 	return {
 		...obj,
 		envVar: prefixStringIfDefined(existingEnvPrefix, obj.envVar) ?? envPrefix + constantCase(currentPath.join('_')),
-	}
-
+	};
 }
 
-
-
-export function normalizeSchema<TSchema extends Schema<unknown>>(schema: TSchema, opts?: ConfigOptions ): NormalizeSchema<TSchema> {
-
-	let envPrefix = ''
-	if(opts?.envPrefix != null && opts.envPrefix.trim().length > 0) {
-		envPrefix = `${opts.envPrefix}_`
+export function normalizeSchema<TSchema extends Schema<unknown>>(
+	schema: TSchema,
+	opts?: ConfigOptions
+): NormalizeSchema<TSchema> {
+	let envPrefix = '';
+	if (opts?.envPrefix != null && opts.envPrefix.trim().length > 0) {
+		envPrefix = `${opts.envPrefix}_`;
 	}
 
-	let existingEnvPrefix = ''
-	if(opts?.prefixExistingEnv ?? false) {
-		existingEnvPrefix = envPrefix
+	let existingEnvPrefix = '';
+	if (opts?.prefixExistingEnv ?? false) {
+		existingEnvPrefix = envPrefix;
 	}
 
-	function iterate(currentObject: TSchema , currentPath: string[]): NormalizeSchema<TSchema>
-	function iterate<TProp>(currentObject: TSchema | ConfigDefinition<TProp>, currentPath: string[]): NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp> {
-
-		if(isSchemaObject(currentObject)) {
-			return normalizeSchemaObject(currentObject, {envPrefix, existingEnvPrefix, currentPath})
+	function iterate(currentObject: TSchema, currentPath: string[]): NormalizeSchema<TSchema>;
+	function iterate<TProp>(
+		currentObject: TSchema | ConfigDefinition<TProp>,
+		currentPath: string[]
+	): NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp> {
+		if (isSchemaObject(currentObject)) {
+			return normalizeSchemaObject(currentObject, { envPrefix, existingEnvPrefix, currentPath });
 		} else {
 			const alteredObjects: TSchema[] = Object.entries(currentObject).map((entry) => {
 				const [key, value] = entry;
@@ -61,13 +64,9 @@ export function normalizeSchema<TSchema extends Schema<unknown>>(schema: TSchema
 	return iterate(schema, []);
 }
 
-
-// export function createConfig<TProps>(schema: Schema<TProps>, opts?: ConfigOptions): Config<TProps> {
-export function createConfig<TSchema extends Schema< unknown >>(schema: TSchema, opts?: ConfigOptions): Config<TSchema> {
-	return new ConfigDefaultImpl(schema, opts)
+export function createConfig<TSchema extends Schema<unknown>>(schema: TSchema, opts?: ConfigOptions): Config<TSchema> {
+	return new ConfigDefaultImpl(schema, opts);
 }
-
-
 
 // const a = cc({
 // 	explicitOptionalProp: configDef<string | null>(() => 'firstValue', {optional: true}),
@@ -76,5 +75,3 @@ export function createConfig<TSchema extends Schema< unknown >>(schema: TSchema,
 // 	secondProp: configDef(() => null, {optional: false}),
 // 	thirdProp: configDef(() => 'thirdValue'),
 // })
-
-

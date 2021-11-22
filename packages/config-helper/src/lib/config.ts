@@ -1,14 +1,9 @@
-import { NormalizeSchema } from "./normalized-schema";
-import { Schema } from "./schema";
-import { Properties } from "./properties";
+import { NormalizeSchema } from './normalized-schema';
+import { Schema } from './schema';
+import { Properties } from './properties';
 
 export interface Config<TSchema extends Schema<unknown>> {
+	getSchema: () => NormalizeSchema<TSchema>;
 
-	getSchema: () => NormalizeSchema<TSchema>
-
-	getProperties: () => Properties<TSchema>
-
+	getProperties: () => Properties<TSchema>;
 }
-
-
-

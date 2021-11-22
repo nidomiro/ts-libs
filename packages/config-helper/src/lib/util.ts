@@ -1,17 +1,12 @@
-
-
-export function prefixStringIfDefined(prefix: string, str: string ): string
-export function prefixStringIfDefined(prefix: string, str: null): null
-export function prefixStringIfDefined(prefix: string, str: undefined): undefined
-export function prefixStringIfDefined(prefix: string, str: string | null | undefined): string | null | undefined
+export function prefixStringIfDefined(prefix: string, str: string): string;
+export function prefixStringIfDefined(prefix: string, str: null): null;
+export function prefixStringIfDefined(prefix: string, str: undefined): undefined;
+export function prefixStringIfDefined(prefix: string, str: string | null | undefined): string | null | undefined;
 export function prefixStringIfDefined(prefix: string, str: string | null | undefined): string | null | undefined {
-	if(str == null) {
-		return str
+	if (str == null) {
+		return str;
 	}
-	return prefix + str
+	return prefix + str;
 }
 
-
-export type MustHaveNull<T> = null extends T ? T : never
-
-
+export type MustHaveNull<T> = null extends T ? T : never;
