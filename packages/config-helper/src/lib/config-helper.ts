@@ -67,11 +67,3 @@ export function normalizeSchema<TSchema extends Schema<unknown>>(
 export function createConfig<TSchema extends Schema<unknown>>(schema: TSchema, opts?: ConfigOptions): Config<TSchema> {
 	return new ConfigDefaultImpl(schema, opts);
 }
-
-// const a = cc({
-// 	explicitOptionalProp: configDef<string | null>(() => 'firstValue', {optional: true}),
-// 	explicitFunctionOptionalProp: configDef((): string| null => 'firstValue', {optional: true}),
-// 	errorBecauseOfMissingNull: configDef(() => 'firstValue', {optional: true}),
-// 	secondProp: configDef(() => null, {optional: false}),
-// 	thirdProp: configDef(() => 'thirdValue'),
-// })

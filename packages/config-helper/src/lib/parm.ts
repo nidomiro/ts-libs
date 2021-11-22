@@ -1,16 +1,13 @@
-import { MustHaveNull } from './util';
 import { ConfigDefinition, ConfigDefinitionOptional, ConfigDefinitionRequired } from './schema';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function param<T extends {} | null>(
-	transformer: (val: unknown | null) => MustHaveNull<T>,
+export function param<T>(
+	transformer: (val: unknown | null) => T | null,
 	config: { optional: true; envVar?: string }
-): ConfigDefinitionOptional<MustHaveNull<T>>;
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function param<T extends null extends T ? never : {}>(
+): ConfigDefinitionOptional<T>;
+export function param<T>(
 	transformer: (val: unknown | null) => T | null,
 	config?: { optional?: false; envVar?: string }
-): null extends T ? never : ConfigDefinitionRequired<T>;
+): ConfigDefinitionRequired<T>;
 export function param<T>(
 	transformer: (val: unknown | null) => T,
 	config?: { optional?: boolean; envVar?: string }
