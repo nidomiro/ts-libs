@@ -4,18 +4,18 @@ export interface ConfigOptions {
 	 *
 	 * default: no prefix
 	 */
-	envPrefix?: string;
+	envPrefix?: string
 	/**
 	 * Apply the envPrefix to existing env entries if true.
 	 *
 	 * default: false
 	 */
-	prefixExistingEnv?: boolean;
+	prefixExistingEnv?: boolean
 
 	/**
 	 * Override the used environment
 	 *
 	 * default: process.env
 	 */
-	env?: NodeJS.ProcessEnv | undefined;
+	env?: NodeJS.ProcessEnv | undefined
 }

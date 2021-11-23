@@ -1,8 +1,6 @@
-import { stringTransformer } from "./string-transformer";
-
+import { stringTransformer } from './string-transformer'
 
 describe('string-transformer', () => {
-
 	it('should return the given string', () => {
 		expect(stringTransformer()('testString')).toEqual('testString')
 	})

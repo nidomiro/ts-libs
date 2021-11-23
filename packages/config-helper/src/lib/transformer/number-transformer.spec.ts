@@ -1,8 +1,6 @@
-import { numberTransformer } from "./number-transformer";
-
+import { numberTransformer } from './number-transformer'
 
 describe('string-transformer', () => {
-
 	it('should return the given string', () => {
 		expect(numberTransformer()(42)).toEqual(42)
 	})

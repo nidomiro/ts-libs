@@ -1,4 +1,4 @@
-import { ConfigDefinitionOptional, ConfigDefinitionRequired } from './schema';
+import { ConfigDefinitionOptional, ConfigDefinitionRequired } from './schema'
 
 // eslint-disable-next-line @typescript-eslint/no-type-alias
 export type Properties<T> = {
@@ -6,5 +6,5 @@ export type Properties<T> = {
 		? U | null
 		: T[P] extends ConfigDefinitionRequired<infer U>
 		? NonNullable<U>
-		: Properties<T[P]>;
-};
+		: Properties<T[P]>
+}
