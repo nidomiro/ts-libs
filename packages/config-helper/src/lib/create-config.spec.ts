@@ -1,5 +1,5 @@
-import { createConfig } from './config-helper';
-import { stringTransformer } from './transformer/string-transformer';
+import { createConfig } from './create-config';
+import { stringTransformer } from './transformer';
 import { param } from './parm';
 
 describe('configHelper', () => {

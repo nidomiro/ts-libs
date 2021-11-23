@@ -3,7 +3,7 @@ import { ConfigDefinition, isSchemaObject, Schema } from './schema';
 import { Config } from './config';
 import { ConfigOptions } from './config-options';
 import { NormalizedConfigDefinition, NormalizeSchema } from './normalized-schema';
-import { prefixStringIfDefined } from './util';
+import { prefixStringIfDefined } from './utils/string-util';
 import { ConfigDefaultImpl } from './config-default-impl';
 
 interface SchemaObjectNormalizeOptions {

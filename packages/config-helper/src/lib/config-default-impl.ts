@@ -3,17 +3,22 @@ import { Schema } from './schema';
 import { Config } from './config';
 import { NormalizeSchema, NormalizedConfigDefinition, isNormalizedSchemaObject } from './normalized-schema';
 import { ConfigOptions } from './config-options';
-import { normalizeSchema } from './config-helper';
+import { normalizeSchema } from './create-config';
+import { lazy } from "./utils/lazy";
 
 export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Config<TSchema> {
 	public readonly schema: NormalizeSchema<TSchema>;
 	public readonly environment: NodeJS.ProcessEnv;
 
-	private readonly originalSchema: TSchema;
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	private readonly _originalSchema: TSchema;
+
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	private readonly _properties = lazy( () => this._calculateProperties())
 
 	constructor(schema: TSchema, private readonly opts?: ConfigOptions) {
-		this.originalSchema = schema;
-		this.schema = normalizeSchema(this.originalSchema, this.opts);
+		this._originalSchema = schema;
+		this.schema = normalizeSchema(this._originalSchema, this.opts);
 		this.environment = opts?.env ?? process.env;
 	}
 
@@ -22,20 +27,16 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 	}
 
 	getProperties(): Properties<TSchema> {
+		return this._properties.value
+	}
+
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	private _calculateProperties(): Properties<TSchema> {
 		const processNormalizedSchemaObject = <TProp>(
 			propName: string,
 			obj: NormalizedConfigDefinition<TProp>
 		): TProp | null => {
 			const envVarVal = this.environment[obj.envVar];
-			/* TODO: handle explicit 'null' values => Transformer must decide because it knows what a explicit null value is => undefined == EnvVar not set
-				TEST_VAR_ES='' TEST_VAR_E= TEST_VAR_V=Value
-				results in
-				{
-					TEST_VAR_ES: '',
-					TEST_VAR_E: '',
-					TEST_VAR_V: 'Value',
-				}
-			 */
 
 			const val = obj.transformer(envVarVal);
 
