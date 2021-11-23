@@ -1,5 +1,8 @@
+
+export type ConfigValueTransformer<T> = (val: unknown | null | undefined) => T | null
+
 export interface ConfigDefinitionCommon<T> {
-	transformer: (val: unknown | null) => T;
+	transformer: ConfigValueTransformer<T>;
 	envVar?: string;
 }
 

@@ -1,15 +1,16 @@
-import { ConfigDefinition, ConfigDefinitionOptional, ConfigDefinitionRequired } from './schema';
+import { ConfigDefinition, ConfigDefinitionOptional, ConfigDefinitionRequired, ConfigValueTransformer } from "./schema";
+
 
 export function param<T>(
-	transformer: (val: unknown | null) => T | null,
+	transformer: ConfigValueTransformer<T>,
 	config: { optional: true; envVar?: string }
 ): ConfigDefinitionOptional<T>;
 export function param<T>(
-	transformer: (val: unknown | null) => T | null,
+	transformer: ConfigValueTransformer<T>,
 	config?: { optional?: false; envVar?: string }
 ): ConfigDefinitionRequired<T>;
 export function param<T>(
-	transformer: (val: unknown | null) => T,
+	transformer: ConfigValueTransformer<T>,
 	config?: { optional?: boolean; envVar?: string }
 ): ConfigDefinition<T> | ConfigDefinitionRequired<T> {
 	return {

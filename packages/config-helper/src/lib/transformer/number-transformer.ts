@@ -1,3 +1,4 @@
+import { ConfigValueTransformer } from "../schema";
 
 function handleString(val: string): number | null {
 	if(val.trim().length === 0) {
@@ -13,9 +14,11 @@ function handleString(val: string): number | null {
 }
 
 
-export function numberTransformer(defaultValue?: number | null): (val: unknown | null) => number | null {
+export function numberTransformer(defaultValue?: number | null): ConfigValueTransformer<number> {
 	return (val) => {
-		if (val == null)  {
+		if (val === null)  {
+			return null
+		} else if (val === undefined)  {
 			return defaultValue ?? null
 		} else if (typeof val === 'string') {
 			return handleString(val)

@@ -27,7 +27,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 			obj: NormalizedConfigDefinition<TProp>
 		): TProp | null => {
 			const envVarVal = this.environment[obj.envVar];
-			/* TODO: handle explicit 'null' values
+			/* TODO: handle explicit 'null' values => Transformer must decide because it knows what a explicit null value is => undefined == EnvVar not set
 				TEST_VAR_ES='' TEST_VAR_E= TEST_VAR_V=Value
 				results in
 				{
@@ -37,7 +37,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 				}
 			 */
 
-			const val = (envVarVal === null) ? null : obj.transformer(envVarVal); // handle explicit null value
+			const val = obj.transformer(envVarVal);
 
 			if (val == null && !obj.optional) {
 				throw new RangeError(`${propName} (envVar: ${obj.envVar}) has to be defined`); // TODO: replace with better error, maybe Result and no throw => accumulate errors

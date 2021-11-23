@@ -7,12 +7,16 @@ describe('string-transformer', () => {
 		expect(numberTransformer()(42)).toEqual(42)
 	})
 
-	it('should return the default value for null', () => {
-		expect(numberTransformer(24)(null)).toEqual(24)
+	it('should return null for value null', () => {
+		expect(numberTransformer(24)(null)).toEqual(null)
 	})
 
 	it('should return null if default is not set and value is null', () => {
 		expect(numberTransformer()(null)).toEqual(null)
+	})
+
+	it('should return default if value is undefined', () => {
+		expect(numberTransformer(24)(undefined)).toEqual(24)
 	})
 
 	it('should return null if default is not set and value is empty string', () => {

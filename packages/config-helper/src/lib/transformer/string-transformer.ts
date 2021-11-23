@@ -1,3 +1,4 @@
+import { ConfigValueTransformer } from "../schema";
 
 function handleString(val: string, handleEmptyStringAsNull: boolean): string | null {
 	if(handleEmptyStringAsNull && val.trim().length === 0) {
@@ -7,11 +8,13 @@ function handleString(val: string, handleEmptyStringAsNull: boolean): string | n
 }
 
 
-export function stringTransformer(defaultValue: string | null = null, handleEmptyStringAsNull: boolean = false): (val: unknown | null) => string | null {
+export function stringTransformer(defaultValue: string | null = null, handleEmptyStringAsNull: boolean = true): ConfigValueTransformer<string> {
 	return (val) => {
-		if (val == null ) {
+		if (val === null ) {
+			return null
+		} else if (val === undefined ) {
 			return defaultValue ?? null
-		}else if (typeof val === 'string') {
+		} else if (typeof val === 'string') {
 
 			return handleString(val, handleEmptyStringAsNull);
 		} else {

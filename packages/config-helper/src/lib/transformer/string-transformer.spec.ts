@@ -8,7 +8,11 @@ describe('string-transformer', () => {
 	})
 
 	it('should return the default value for null', () => {
-		expect(stringTransformer('defaultValue')(null)).toEqual('defaultValue')
+		expect(stringTransformer('defaultValue')(null)).toEqual(null)
+	})
+
+	it('should return default for value undefined', () => {
+		expect(stringTransformer('defaultValue')(undefined)).toEqual('defaultValue')
 	})
 
 	it('should return null if default is not set and value is null', () => {
@@ -19,19 +23,19 @@ describe('string-transformer', () => {
 		expect(() => stringTransformer()(1)).toThrow(TypeError)
 	})
 
-	it('should return empty string if value is empty string', () => {
-		expect(stringTransformer()('')).toEqual('')
+	it('should return null if value is empty string', () => {
+		expect(stringTransformer()('')).toEqual(null)
 	})
 
-	it('should return same string if value is whitespace string', () => {
-		expect(stringTransformer()(' \t')).toEqual(' \t')
+	it('should return null if value is whitespace string', () => {
+		expect(stringTransformer()(' \t')).toEqual(null)
 	})
 
-	it('should return null if value is empty string and handleEmptyStringAsNull=true', () => {
-		expect(stringTransformer(null, true)('')).toEqual(null)
+	it('should return same string if value is empty string and handleEmptyStringAsNull=false', () => {
+		expect(stringTransformer(null, false)('')).toEqual('')
 	})
 
-	it('should return null if value is whitespace string and handleEmptyStringAsNull=true', () => {
-		expect(stringTransformer(null, true)(' \t')).toEqual(null)
+	it('should return same string if value is whitespace string and handleEmptyStringAsNull=false', () => {
+		expect(stringTransformer(null, false)(' \t')).toEqual(' \t')
 	})
 })

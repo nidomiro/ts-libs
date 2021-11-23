@@ -1,7 +1,7 @@
-import { ConfigDefinition } from './schema';
+import { ConfigDefinition, ConfigValueTransformer } from "./schema";
 
 export interface NormalizedConfigDefinition<T> {
-	transformer: (val: unknown | null) => T;
+	transformer: ConfigValueTransformer<T>;
 	envVar: string;
 	optional: boolean;
 }
