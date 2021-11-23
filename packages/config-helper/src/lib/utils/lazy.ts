@@ -9,12 +9,9 @@ export class Lazy<T extends {} | null> {
 		return this._value
 	}
 
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	private _value: T | undefined = undefined
 
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	constructor(private readonly _initializer: () => T) {}
-
 
 }
 

@@ -10,16 +10,14 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 	public readonly schema: NormalizeSchema<TSchema>;
 	public readonly environment: NodeJS.ProcessEnv;
 
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	private readonly _originalSchema: TSchema;
 
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	private readonly _properties = lazy( () => this._calculateProperties())
 
-	constructor(schema: TSchema, private readonly opts?: ConfigOptions) {
+	constructor(schema: TSchema, private readonly _opts?: ConfigOptions) {
 		this._originalSchema = schema;
-		this.schema = normalizeSchema(this._originalSchema, this.opts);
-		this.environment = opts?.env ?? process.env;
+		this.schema = normalizeSchema(this._originalSchema, this._opts);
+		this.environment = _opts?.env ?? process.env;
 	}
 
 	getSchema(): NormalizeSchema<TSchema> {
@@ -30,7 +28,6 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 		return this._properties.value
 	}
 
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	private _calculateProperties(): Properties<TSchema> {
 		const processNormalizedSchemaObject = <TProp>(
 			propName: string,
