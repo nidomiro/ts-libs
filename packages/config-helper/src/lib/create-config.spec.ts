@@ -150,7 +150,7 @@ describe('configHelper', () => {
 				testProp: param({ transformer: stringTransformer(), defaultValue: null }),
 			}, {
 				env: {
-					'MY_FANCY_PREFIX_ABC': 'TestPropValueFromEnv'
+					'MY_FANCY_PREFIX_TEST_PROP': 'TestPropValueFromEnv'
 				},
 				envPrefix: 'MY_FANCY_PREFIX',
 			})
