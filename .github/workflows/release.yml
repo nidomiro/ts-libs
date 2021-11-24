@@ -9,50 +9,50 @@ jobs:
     lint:
         runs-on: ubuntu-latest
         steps:
-            -   uses: actions/checkout@v2
-                with:
-                    fetch-depth: 0
-            -   uses: ./.github/actions/setup
-            -   run: yarn nx affected:lint --base=latest-release --parallel
+            - uses: actions/checkout@v2
+              with:
+                  fetch-depth: 0
+            - uses: ./.github/actions/setup
+            - run: yarn nx affected:lint --base=latest-release --parallel
     test:
         runs-on: ubuntu-latest
 
         strategy:
             matrix:
-                node-version: [ 12, 14, 16 ]
+                node-version: [12, 14, 16]
 
         steps:
-            -   uses: actions/checkout@v2
-                with:
-                    fetch-depth: 0
-            -   uses: ./.github/actions/setup
-                with:
-                    node-version: ${{ matrix.node-version }}
-            -   run: yarn nx affected:test --base=latest-release --parallel
+            - uses: actions/checkout@v2
+              with:
+                  fetch-depth: 0
+            - uses: ./.github/actions/setup
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - run: yarn nx affected:test --base=latest-release --parallel
     publish:
         runs-on: ubuntu-latest
         needs:
             - lint
             - test
         steps:
-            -   uses: actions/checkout@v2
-                with:
-                    fetch-depth: 0
-            -   uses: ./.github/actions/setup
+            - uses: actions/checkout@v2
+              with:
+                  fetch-depth: 0
+            - uses: ./.github/actions/setup
 
-            -   name: build
-                run: yarn nx affected:build --parallel --prod
+            - name: build
+              run: yarn nx affected:build --parallel --prod
 
-            -   name: bump version and release it
-                run: npx nx affected --target=release-new-version --base=latest-release --parallel
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                    NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLSH_KEY }}
-                    NPM_PUBLSH_KEY: ${{ secrets.NPM_PUBLSH_KEY }}
-                    NPM_PUBLSH_EMAIL: ${{ secrets.NPM_PUBLSH_EMAIL }}
+            - name: bump version and release it
+              run: npx nx affected --target=release-new-version --base=latest-release --parallel
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLSH_KEY }}
+                  NPM_PUBLSH_KEY: ${{ secrets.NPM_PUBLSH_KEY }}
+                  NPM_PUBLSH_EMAIL: ${{ secrets.NPM_PUBLSH_EMAIL }}
 
-            -   name: push commit and tags
-                run: git push || true; git push -f --tags
+            - name: push commit and tags
+              run: git push || true; git push -f --tags
 
-            -   name: move latest-release to current commit
-                run: git tag -f -a latest-release -m latest-release && git push -f --tags
+            - name: move latest-release to current commit
+              run: git tag -f -a latest-release -m latest-release && git push -f --tags

@@ -9,21 +9,21 @@ inputs:
 runs:
     using: composite
     steps:
-        -   uses: actions/checkout@v2
-            with:
-                fetch-depth: 0
+        - uses: actions/checkout@v2
+          with:
+              fetch-depth: 0
 
-        -   name: git config
-            shell: bash
-            run: |
-                git config user.name "Github Actions"
-                git config user.email "-"
+        - name: git config
+          shell: bash
+          run: |
+              git config user.name "Github Actions"
+              git config user.email "-"
 
-        -   uses: actions/setup-node@v2
-            with:
-                node-version: ${{ inputs.node-version }}
-                cache: 'yarn'
-                registry-url: https://registry.npmjs.org
+        - uses: actions/setup-node@v2
+          with:
+              node-version: ${{ inputs.node-version }}
+              cache: 'yarn'
+              registry-url: https://registry.npmjs.org
 
-        -   run: yarn install --frozen-lockfile --no-progress --non-interactive --prefer-offline
-            shell: bash
+        - run: yarn install --frozen-lockfile --no-progress --non-interactive --prefer-offline
+          shell: bash

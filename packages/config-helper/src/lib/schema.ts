@@ -9,7 +9,6 @@ export interface ConfigDefinitionCommon<T> {
 	defaultValue: T | null | typeof NoDefaultValue
 	envVar?: string
 	trimValue?: boolean | 'start' | 'end'
-
 }
 
 export interface ConfigDefinitionOptional<T> extends ConfigDefinitionCommon<T> {

@@ -21,7 +21,7 @@ export function normalizeSchemaObject<T>(
 	return {
 		...obj,
 		envVar: prefixStringIfDefined(existingEnvPrefix, obj.envVar) ?? envPrefix + constantCase(currentPath.join('_')),
-		trimValue: obj.trimValue ?? false
+		trimValue: obj.trimValue ?? false,
 	}
 }
 
