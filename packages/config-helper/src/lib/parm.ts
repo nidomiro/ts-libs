@@ -3,13 +3,10 @@ import {
 	ConfigDefinitionCommon,
 	ConfigDefinitionOptional,
 	ConfigDefinitionRequired,
-	NoDefaultValue,
 } from './schema'
 
-interface ParamCommon<T> extends Omit<ConfigDefinitionCommon<T>, 'defaultValue'> {
-	defaultValue?: T | null | typeof NoDefaultValue
+interface ParamCommon<T> extends ConfigDefinitionCommon<T> {
 	trimValue?: boolean | 'start' | 'end'
-
 }
 
 interface RequiredParam<T> extends ParamCommon<T> {
@@ -26,6 +23,5 @@ export function param<T>(def: RequiredParam<T> | OptionalParam<T>): ConfigDefini
 	return {
 		...def,
 		optional: def.optional ?? false,
-		defaultValue: def.defaultValue ?? NoDefaultValue,
 	}
 }
