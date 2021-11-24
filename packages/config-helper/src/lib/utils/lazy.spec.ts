@@ -35,4 +35,16 @@ describe(`lazy`, () => {
 		expect(lazyVal.value).toEqual('TestValue')
 		expect(initializer).toHaveBeenCalledTimes(1)
 	})
+
+	it(`reset should remove the stored value`, () => {
+		const initializer = jest.fn()
+		initializer.mockReturnValue('TestValue')
+		const lazyVal = lazy(initializer)
+
+		expect(lazyVal.value).toEqual('TestValue')
+		initializer.mockReturnValue('TestValue2')
+		lazyVal.reset()
+		expect(lazyVal.value).toEqual('TestValue2')
+		expect(initializer).toHaveBeenCalledTimes(2)
+	})
 })

@@ -10,6 +10,10 @@ export class Lazy<T extends {} | null> {
 	private _value: T | undefined = undefined
 
 	constructor(private readonly _initializer: () => T) {}
+
+	public reset(): void {
+		this._value = undefined
+	}
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
