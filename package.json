@@ -3,12 +3,14 @@
 	"version": "0.0.0",
 	"license": "MIT",
 	"scripts": {
+		"postinstall": "node ./node_modules/husky/lib/bin install",
 		"nx": "nx",
 		"cz": "cz"
 	},
 	"private": true,
 	"dependencies": {
 		"change-case": "^4.1.2",
+		"neverthrow": "^4.3.1",
 		"reflect-metadata": "^0.1.13",
 		"tslib": "^2.0.0"
 	},
