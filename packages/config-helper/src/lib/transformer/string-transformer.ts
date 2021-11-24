@@ -7,15 +7,10 @@ function handleString(val: string, handleEmptyStringAsNull: boolean): string | n
 	return val
 }
 
-export function stringTransformer(
-	defaultValue: string | null = null,
-	handleEmptyStringAsNull: boolean = true,
-): ConfigValueTransformer<string> {
+export function stringTransformer(handleEmptyStringAsNull: boolean = true): ConfigValueTransformer<string> {
 	return (val) => {
 		if (val === null) {
 			return null
-		} else if (val === undefined) {
-			return defaultValue ?? null
 		} else if (typeof val === 'string') {
 			return handleString(val, handleEmptyStringAsNull)
 		} else {

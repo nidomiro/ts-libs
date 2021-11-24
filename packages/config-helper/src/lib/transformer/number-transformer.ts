@@ -13,18 +13,16 @@ function handleString(val: string): number | null {
 	}
 }
 
-export function numberTransformer(defaultValue?: number | null): ConfigValueTransformer<number> {
+export function numberTransformer(): ConfigValueTransformer<number> {
 	return (val) => {
 		if (val === null) {
 			return null
-		} else if (val === undefined) {
-			return defaultValue ?? null
 		} else if (typeof val === 'string') {
 			return handleString(val)
 		} else if (typeof val === 'number') {
 			return val
 		} else {
-			throw new TypeError(`got '${typeof val}' instead of 'string'`)
+			throw new TypeError(`got '${typeof val}' instead of 'number'`)
 		}
 	}
 }

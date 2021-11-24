@@ -6,14 +6,18 @@ describe('configHelper', () => {
 	describe('schema tests', () => {
 		it('should add env var to schema on first level', () => {
 			const config = createConfig({
-				testProp: param(stringTransformer('testPropValue')),
+				testProp: param({ transformer: stringTransformer(), defaultValue: 'testPropValue' }),
 			})
 			expect(config.getSchema().testProp.envVar).toEqual('TEST_PROP')
 		})
 
 		it('should keep existing env var definitions', () => {
 			const config = createConfig({
-				testProp: param(stringTransformer('testPropValue'), { envVar: 'TEST_ENV_VAR' }),
+				testProp: param({
+					transformer: stringTransformer(),
+					defaultValue: 'testPropValue',
+					envVar: 'TEST_ENV_VAR',
+				}),
 			})
 
 			expect(config.getSchema().testProp.envVar).toEqual('TEST_ENV_VAR')
@@ -22,9 +26,9 @@ describe('configHelper', () => {
 		it('should add env var definitions to nested config', () => {
 			const config = createConfig({
 				group: {
-					testProp: param(stringTransformer('testPropValue')),
+					testProp: param({ transformer: stringTransformer(), defaultValue: 'testPropValue' }),
 					innerGroup: {
-						testProp: param(stringTransformer('testPropValue')),
+						testProp: param({ transformer: stringTransformer(), defaultValue: 'testPropValue' }),
 					},
 				},
 			})
@@ -37,7 +41,7 @@ describe('configHelper', () => {
 			it('should prefix generated env-vars', () => {
 				const config = createConfig(
 					{
-						testProp: param(stringTransformer('testPropValue')),
+						testProp: param({ transformer: stringTransformer(), defaultValue: 'testPropValue' }),
 					},
 					{
 						envPrefix: 'PREFIX',
@@ -50,7 +54,11 @@ describe('configHelper', () => {
 			it('should not prefix existing env-vars if not configured', () => {
 				const config = createConfig(
 					{
-						testProp: param(stringTransformer('testPropValue'), { envVar: 'EXISTING_PROP' }),
+						testProp: param({
+							transformer: stringTransformer(),
+							defaultValue: 'testPropValue',
+							envVar: 'EXISTING_PROP',
+						}),
 					},
 					{
 						envPrefix: 'PREFIX',
@@ -62,7 +70,11 @@ describe('configHelper', () => {
 			it('should prefix existing env-vars if configured', () => {
 				const config = createConfig(
 					{
-						testProp: param(stringTransformer('testPropValue'), { envVar: 'EXISTING_PROP' }),
+						testProp: param({
+							transformer: stringTransformer(),
+							defaultValue: 'testPropValue',
+							envVar: 'EXISTING_PROP',
+						}),
 					},
 					{
 						envPrefix: 'PREFIX',
@@ -79,7 +91,7 @@ describe('configHelper', () => {
 		it('should use process.env as default env-source', () => {
 			process.env.TEST_PROP = 'TestPropValueFromProcessEnv'
 			const config = createConfig({
-				testProp: param(stringTransformer('testPropValue')),
+				testProp: param({ transformer: stringTransformer(), defaultValue: 'testPropValue' }),
 			})
 
 			expect(config.getProperties().testProp).toEqual('TestPropValueFromProcessEnv')
@@ -89,7 +101,7 @@ describe('configHelper', () => {
 		it('env should be overrideable from config', () => {
 			const config = createConfig(
 				{
-					testProp: param(stringTransformer('testPropValue')),
+					testProp: param({ transformer: stringTransformer(), defaultValue: 'testPropValue' }),
 				},
 				{
 					env: {
@@ -107,7 +119,7 @@ describe('configHelper', () => {
 		it('should parse single prop', () => {
 			const config = createConfig(
 				{
-					testProp: param(stringTransformer('testPropValue')),
+					testProp: param({ transformer: stringTransformer(), defaultValue: 'testPropValue' }),
 				},
 				{
 					env: {
@@ -122,7 +134,7 @@ describe('configHelper', () => {
 
 		it('should throw RangeError if required prop is null', () => {
 			const config = createConfig({
-				testProp: param(stringTransformer(null)),
+				testProp: param({ transformer: stringTransformer(), defaultValue: null }),
 			})
 
 			expect(() => config.getProperties().testProp).toThrow(RangeError)
@@ -130,7 +142,7 @@ describe('configHelper', () => {
 
 		it('property should be null if optional', () => {
 			const config = createConfig({
-				testProp: param(stringTransformer(null), { optional: true }),
+				testProp: param({ transformer: stringTransformer(), defaultValue: null, optional: true }),
 			})
 
 			expect(config.getProperties().testProp).toEqual(null)

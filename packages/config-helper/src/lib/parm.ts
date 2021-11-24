@@ -1,20 +1,31 @@
-import { ConfigDefinition, ConfigDefinitionOptional, ConfigDefinitionRequired, ConfigValueTransformer } from './schema'
+import {
+	ConfigDefinition,
+	ConfigDefinitionCommon,
+	ConfigDefinitionOptional,
+	ConfigDefinitionRequired,
+	NoDefaultValue,
+} from './schema'
 
-export function param<T>(
-	transformer: ConfigValueTransformer<T>,
-	config: { optional: true; envVar?: string },
-): ConfigDefinitionOptional<T>
-export function param<T>(
-	transformer: ConfigValueTransformer<T>,
-	config?: { optional?: false; envVar?: string },
-): ConfigDefinitionRequired<T>
-export function param<T>(
-	transformer: ConfigValueTransformer<T>,
-	config?: { optional?: boolean; envVar?: string },
-): ConfigDefinition<T> | ConfigDefinitionRequired<T> {
+interface ParamCommon<T> extends Omit<ConfigDefinitionCommon<T>, 'defaultValue'> {
+	defaultValue?: T | null | typeof NoDefaultValue
+	trimValue?: boolean | 'start' | 'end'
+
+}
+
+interface RequiredParam<T> extends ParamCommon<T> {
+	optional?: false
+}
+
+interface OptionalParam<T> extends ParamCommon<T> {
+	optional: true
+}
+
+export function param<T>(def: OptionalParam<T>): ConfigDefinitionOptional<T>
+export function param<T>(def: RequiredParam<T>): ConfigDefinitionRequired<T>
+export function param<T>(def: RequiredParam<T> | OptionalParam<T>): ConfigDefinition<T> | ConfigDefinitionRequired<T> {
 	return {
-		transformer,
-		optional: config?.optional ?? false,
-		envVar: config?.envVar,
+		...def,
+		optional: def.optional ?? false,
+		defaultValue: def.defaultValue ?? NoDefaultValue,
 	}
 }

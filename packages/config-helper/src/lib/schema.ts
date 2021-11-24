@@ -1,13 +1,21 @@
-export type ConfigValueTransformer<T> = (val: unknown | null | undefined) => T | null
+export const NoDefaultValue: unique symbol = Symbol('NoDefaultValue')
+
+export const NoValue: unique symbol = Symbol('NoValue')
+
+export type ConfigValueTransformer<T> = (val: unknown | null) => T | null
 
 export interface ConfigDefinitionCommon<T> {
 	transformer: ConfigValueTransformer<T>
+	defaultValue: T | null | typeof NoDefaultValue
 	envVar?: string
+	trimValue?: boolean | 'start' | 'end'
+
 }
 
 export interface ConfigDefinitionOptional<T> extends ConfigDefinitionCommon<T> {
 	optional: false
 }
+
 export interface ConfigDefinitionRequired<T> extends ConfigDefinitionCommon<T> {
 	optional: true
 }

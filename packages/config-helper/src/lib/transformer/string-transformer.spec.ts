@@ -5,14 +5,6 @@ describe('string-transformer', () => {
 		expect(stringTransformer()('testString')).toEqual('testString')
 	})
 
-	it('should return the default value for null', () => {
-		expect(stringTransformer('defaultValue')(null)).toEqual(null)
-	})
-
-	it('should return default for value undefined', () => {
-		expect(stringTransformer('defaultValue')(undefined)).toEqual('defaultValue')
-	})
-
 	it('should return null if default is not set and value is null', () => {
 		expect(stringTransformer()(null)).toEqual(null)
 	})
@@ -30,10 +22,10 @@ describe('string-transformer', () => {
 	})
 
 	it('should return same string if value is empty string and handleEmptyStringAsNull=false', () => {
-		expect(stringTransformer(null, false)('')).toEqual('')
+		expect(stringTransformer(false)('')).toEqual('')
 	})
 
 	it('should return same string if value is whitespace string and handleEmptyStringAsNull=false', () => {
-		expect(stringTransformer(null, false)(' \t')).toEqual(' \t')
+		expect(stringTransformer(false)(' \t')).toEqual(' \t')
 	})
 })

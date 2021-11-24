@@ -1,9 +1,11 @@
-import { ConfigDefinition, ConfigValueTransformer } from './schema'
+import { ConfigDefinition, ConfigValueTransformer, NoDefaultValue } from './schema'
 
 export interface NormalizedConfigDefinition<T> {
 	transformer: ConfigValueTransformer<T>
 	envVar: string
 	optional: boolean
+	defaultValue: T | null | typeof NoDefaultValue
+	trimValue: boolean | 'start' | 'end'
 }
 
 // eslint-disable-next-line @typescript-eslint/no-type-alias

@@ -8,3 +8,15 @@ export function prefixStringIfDefined(prefix: string, str: string | null | undef
 	}
 	return prefix + str
 }
+
+export function trimString(str: string, trim: boolean | 'start' | 'end'): string {
+	if (trim === false) {
+		return str
+	} else if (trim === 'start') {
+		return str.trimStart()
+	} else if (trim === 'end') {
+		return str.trimEnd()
+	} else {
+		return str.trim()
+	}
+}
