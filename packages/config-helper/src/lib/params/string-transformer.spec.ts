@@ -1,15 +1,14 @@
 import { stringTransformer } from './string-transformer'
+import { err, ok } from 'neverthrow'
+import { NotConvertable } from '../schema'
 
 describe('string-transformer', () => {
-	it('should return the given string', () => {
-		expect(stringTransformer()('testString')).toEqual('testString')
-	})
-
-	it('should return null if default is not set and value is null', () => {
-		expect(stringTransformer()(null)).toEqual(null)
-	})
-
-	it('should return TypeError on unknown Type', () => {
-		expect(() => stringTransformer()(1)).toThrow(TypeError)
+	it.each([
+		['testString', ok('testString')],
+		[null, ok(null)],
+		[1, err(NotConvertable)],
+		[{}, err(NotConvertable)],
+	])(`for value '%s' stringTransformer should return '%s'`, (value, expected) => {
+		expect(stringTransformer()(value)).toEqual(expected)
 	})
 })

@@ -1,13 +1,14 @@
-import { ConfigValueTransformer } from '../schema'
+import { ConfigValueTransformer, NotConvertable } from '../schema'
+import { err, ok } from 'neverthrow'
 
 export function stringTransformer(): ConfigValueTransformer<string> {
 	return (val) => {
 		if (val === null) {
-			return null
+			return ok(null)
 		} else if (typeof val === 'string') {
-			return val
+			return ok(val)
 		} else {
-			throw new TypeError(`got '${typeof val}' instead of 'string'`)
+			return err(NotConvertable)
 		}
 	}
 }

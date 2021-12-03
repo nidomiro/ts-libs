@@ -1,6 +1,12 @@
 import { numberParam } from './number-param'
+import { ConfigValueTransformer } from '../schema'
+import { numberTransformer } from './number-transformer'
 
-describe('string-param', () => {
+function checkNumberTransformerCompatibility(transformer: ConfigValueTransformer<number>, val: unknown): void {
+	expect(transformer(val)).toEqual(numberTransformer()(val))
+}
+
+describe('number-param', () => {
 	it('should construct param with all mentioned explicit options', () => {
 		const param = numberParam({ defaultValue: null, trimValue: 'start', envVar: 'ABC', optional: true })
 
@@ -11,9 +17,9 @@ describe('string-param', () => {
 			optional: true,
 		})
 
-		expect(param.transformer(42)).toEqual(42)
-		expect(param.transformer('0')).toEqual(0)
-		expect(param.transformer(null)).toEqual(null)
+		checkNumberTransformerCompatibility(param.transformer, 42)
+		checkNumberTransformerCompatibility(param.transformer, '0')
+		checkNumberTransformerCompatibility(param.transformer, null)
 	})
 
 	it('should construct param with all mentioned explicit options', () => {
@@ -26,8 +32,8 @@ describe('string-param', () => {
 		expect(param).not.toHaveProperty('trimValue')
 		expect(param).not.toHaveProperty('envVar')
 
-		expect(param.transformer(42)).toEqual(42)
-		expect(param.transformer('0')).toEqual(0)
-		expect(param.transformer(null)).toEqual(null)
+		checkNumberTransformerCompatibility(param.transformer, 42)
+		checkNumberTransformerCompatibility(param.transformer, '0')
+		checkNumberTransformerCompatibility(param.transformer, null)
 	})
 })

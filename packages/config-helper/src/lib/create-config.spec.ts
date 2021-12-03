@@ -1,5 +1,7 @@
 import { createConfig } from './create-config'
 import { stringParam } from './params'
+import { IllegalNullValue, SchemaError, schemaErrorToString } from './config'
+import { err } from 'neverthrow'
 
 describe('configHelper', () => {
 	describe('schema tests', () => {
@@ -90,7 +92,14 @@ describe('configHelper', () => {
 				testProp: stringParam({ defaultValue: 'testPropValue' }),
 			})
 
-			expect(config.getProperties().testProp).toEqual('TestPropValueFromProcessEnv')
+			const propertiesResult = config.getProperties()
+
+			if (propertiesResult.isErr()) {
+				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
+			}
+			const properties = propertiesResult.value
+
+			expect(properties.testProp).toEqual('TestPropValueFromProcessEnv')
 			delete process.env.TEST_PROP
 		})
 
@@ -106,8 +115,14 @@ describe('configHelper', () => {
 					},
 				},
 			)
+			const propertiesResult = config.getProperties()
 
-			expect(config.getProperties().testProp).toEqual('TestPropValueFromConfigEnv')
+			if (propertiesResult.isErr()) {
+				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
+			}
+			const properties = propertiesResult.value
+
+			expect(properties.testProp).toEqual('TestPropValueFromConfigEnv')
 		})
 	})
 
@@ -116,16 +131,31 @@ describe('configHelper', () => {
 			const config = createConfig({
 				testProp: stringParam({ defaultValue: null }),
 			})
+			const propertiesResult = config.getProperties()
 
-			expect(() => config.getProperties().testProp).toThrow(RangeError)
+			expect(propertiesResult).toEqual(
+				err([
+					{
+						errorType: IllegalNullValue,
+						propertyPath: ['testProp'],
+						inputValue: null,
+					} as SchemaError,
+				]),
+			)
 		})
 
 		it('property should be null if optional', () => {
 			const config = createConfig({
 				testProp: stringParam({ defaultValue: null, optional: true }),
 			})
+			const propertiesResult = config.getProperties()
 
-			expect(config.getProperties().testProp).toEqual(null)
+			if (propertiesResult.isErr()) {
+				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
+			}
+			const properties = propertiesResult.value
+
+			expect(properties.testProp).toEqual(null)
 		})
 
 		it('property should be set from default-env-var', () => {
@@ -139,8 +169,14 @@ describe('configHelper', () => {
 					},
 				},
 			)
+			const propertiesResult = config.getProperties()
 
-			expect(config.getProperties().testProp).toEqual('TestPropValueFromEnv')
+			if (propertiesResult.isErr()) {
+				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
+			}
+			const properties = propertiesResult.value
+
+			expect(properties.testProp).toEqual('TestPropValueFromEnv')
 		})
 
 		it('property should be set from default-env-var with prefix', () => {
@@ -155,8 +191,14 @@ describe('configHelper', () => {
 					envPrefix: 'MY_FANCY_PREFIX',
 				},
 			)
+			const propertiesResult = config.getProperties()
 
-			expect(config.getProperties().testProp).toEqual('TestPropValueFromEnv')
+			if (propertiesResult.isErr()) {
+				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
+			}
+			const properties = propertiesResult.value
+
+			expect(properties.testProp).toEqual('TestPropValueFromEnv')
 		})
 
 		it('property should be set from explicit Env-Var', () => {
@@ -170,8 +212,14 @@ describe('configHelper', () => {
 					},
 				},
 			)
+			const propertiesResult = config.getProperties()
 
-			expect(config.getProperties().testProp).toEqual('TestPropValueFromEnv')
+			if (propertiesResult.isErr()) {
+				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
+			}
+			const properties = propertiesResult.value
+
+			expect(properties.testProp).toEqual('TestPropValueFromEnv')
 		})
 
 		it('property should be set from explicit Env-Var with prefix', () => {
@@ -187,8 +235,14 @@ describe('configHelper', () => {
 					prefixExistingEnv: true,
 				},
 			)
+			const propertiesResult = config.getProperties()
 
-			expect(config.getProperties().testProp).toEqual('TestPropValueFromEnv')
+			if (propertiesResult.isErr()) {
+				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
+			}
+			const properties = propertiesResult.value
+
+			expect(properties.testProp).toEqual('TestPropValueFromEnv')
 		})
 
 		it('should be able to handle complex nested configs', () => {
@@ -218,12 +272,19 @@ describe('configHelper', () => {
 				},
 			)
 
-			expect(config.getProperties().testProp).toEqual('TestPropEnvValue')
-			expect(config.getProperties().testGroup.testProp).toEqual('TestGroupTestPropEnvValue')
-			expect(config.getProperties().testGroup.testGroup.testProp).toEqual('TestGroupTestGroupTestPropEnvValue')
-			expect(config.getProperties().testGroup.testGroup.testProp2).toEqual('TestGroupTestGroupTestProp2EnvValue')
-			expect(config.getProperties().testGroup.testProp2).toEqual('TestGroupTestProp2EnvValue')
-			expect(config.getProperties().testProp2).toEqual('TestProp2EnvValue')
+			const propertiesResult = config.getProperties()
+
+			if (propertiesResult.isErr()) {
+				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
+			}
+			const properties = propertiesResult.value
+
+			expect(properties.testProp).toEqual('TestPropEnvValue')
+			expect(properties.testGroup.testProp).toEqual('TestGroupTestPropEnvValue')
+			expect(properties.testGroup.testGroup.testProp).toEqual('TestGroupTestGroupTestPropEnvValue')
+			expect(properties.testGroup.testGroup.testProp2).toEqual('TestGroupTestGroupTestProp2EnvValue')
+			expect(properties.testGroup.testProp2).toEqual('TestGroupTestProp2EnvValue')
+			expect(properties.testProp2).toEqual('TestProp2EnvValue')
 		})
 	})
 
@@ -247,8 +308,14 @@ describe('configHelper', () => {
 						},
 					},
 				)
+				const propertiesResult = config.getProperties()
 
-				expect(config.getProperties().testProp).toEqual(expected)
+				if (propertiesResult.isErr()) {
+					throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
+				}
+				const properties = propertiesResult.value
+
+				expect(properties.testProp).toEqual(expected)
 			},
 		)
 
@@ -263,8 +330,14 @@ describe('configHelper', () => {
 					},
 				},
 			)
+			const propertiesResult = config.getProperties()
 
-			expect(config.getProperties().testProp).toEqual(' \tabc \t')
+			if (propertiesResult.isErr()) {
+				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
+			}
+			const properties = propertiesResult.value
+
+			expect(properties.testProp).toEqual(' \tabc \t')
 		})
 	})
 })

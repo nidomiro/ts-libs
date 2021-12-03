@@ -1,28 +1,29 @@
-import { ConfigValueTransformer } from '../schema'
+import { ConfigValueTransformer, NotConvertable } from '../schema'
+import { err, ok, Result } from 'neverthrow'
 
-function handleString(val: string): number | null {
+function handleString(val: string): Result<number | null, typeof NotConvertable> {
 	if (val.trim().length === 0) {
-		return null
+		return ok(null)
 	}
 
 	const converted = Number(val)
 	if (isNaN(converted)) {
-		throw new TypeError(`'${val}' could not be converted to a number`) // TODO: maybe use neverthrow or a special return value to let the ConfigImpl add more context to the error
+		return err(NotConvertable)
 	} else {
-		return converted
+		return ok(converted)
 	}
 }
 
 export function numberTransformer(): ConfigValueTransformer<number> {
 	return (val) => {
 		if (val === null) {
-			return null
+			return ok(null)
 		} else if (typeof val === 'string') {
 			return handleString(val)
 		} else if (typeof val === 'number') {
-			return val
+			return ok(val)
 		} else {
-			throw new TypeError(`got '${typeof val}' instead of 'number'`)
+			return err(NotConvertable)
 		}
 	}
 }

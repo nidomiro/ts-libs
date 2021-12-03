@@ -1,31 +1,17 @@
 import { numberTransformer } from './number-transformer'
+import { err, ok } from 'neverthrow'
+import { NotConvertable } from '../schema'
 
-describe('string-transformer', () => {
-	it('should return the given string', () => {
-		expect(numberTransformer()(42)).toEqual(42)
-	})
-
-	it('should return null for value null', () => {
-		expect(numberTransformer()(null)).toEqual(null)
-	})
-
-	it('should return null if default is not set and value is empty string', () => {
-		expect(numberTransformer()('')).toEqual(null)
-	})
-
-	it('should return null if default is not set and value is white-space only string', () => {
-		expect(numberTransformer()(' \t')).toEqual(null)
-	})
-
-	it('should convert a number-string to a number', () => {
-		expect(numberTransformer()('42')).toEqual(42)
-	})
-
-	it('should throw TypeError on a non-number-string', () => {
-		expect(() => numberTransformer()('abc')).toThrow(TypeError)
-	})
-
-	it('should return TypeError on unknown Type', () => {
-		expect(() => numberTransformer()({})).toThrow(TypeError)
+describe('number-transformer', () => {
+	it.each([
+		[42, ok(42)],
+		[null, ok(null)],
+		['', ok(null)],
+		[' \t', ok(null)],
+		['42', ok(42)],
+		['abc', err(NotConvertable)],
+		[{}, err(NotConvertable)],
+	])(`for value '%s' numberTransformer should return '%s'`, (value, expected) => {
+		expect(numberTransformer()(value)).toEqual(expected)
 	})
 })

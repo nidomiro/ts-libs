@@ -1,12 +1,14 @@
-export const NoDefaultValue: unique symbol = Symbol('NoDefaultValue')
+import { Result } from 'neverthrow'
+
+export const NotConvertable: unique symbol = Symbol('NotConvertable')
 
 export const NoValue: unique symbol = Symbol('NoValue')
 
-export type ConfigValueTransformer<T> = (val: unknown | null) => T | null
+export type ConfigValueTransformer<T> = (val: unknown | null) => Result<T | null, typeof NotConvertable>
 
 export interface ConfigDefinitionCommon<T> {
 	transformer: ConfigValueTransformer<T>
-	defaultValue: T | null | typeof NoDefaultValue
+	defaultValue: T | null
 	envVar?: string
 	trimValue?: boolean | 'start' | 'end'
 }

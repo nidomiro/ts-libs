@@ -1,10 +1,10 @@
-import { ConfigDefinition, ConfigValueTransformer, NoDefaultValue } from './schema'
+import { ConfigDefinition, ConfigValueTransformer } from './schema'
 
 export interface NormalizedConfigDefinition<T> {
 	transformer: ConfigValueTransformer<T>
 	envVar: string
 	optional: boolean
-	defaultValue: T | null | typeof NoDefaultValue
+	defaultValue: T | null
 	trimValue: boolean | 'start' | 'end'
 }
 
