@@ -2,6 +2,8 @@ import { createConfig } from './create-config'
 import { stringParam } from './params'
 import { IllegalNullValue, SchemaError, schemaErrorToString } from './config'
 import { err } from 'neverthrow'
+import { NotConvertable } from './schema'
+import { numberParam } from './params/number-param'
 
 describe('configHelper', () => {
 	describe('schema tests', () => {
@@ -127,7 +129,7 @@ describe('configHelper', () => {
 	})
 
 	describe('property env-var parse tests', () => {
-		it('should throw RangeError if required prop is null', () => {
+		it('should return IllegalNullValue SchemaError if required prop is null', () => {
 			const config = createConfig({
 				testProp: stringParam({ defaultValue: null }),
 			})
@@ -138,6 +140,78 @@ describe('configHelper', () => {
 					{
 						errorType: IllegalNullValue,
 						propertyPath: ['testProp'],
+						inputValue: null,
+					} as SchemaError,
+				]),
+			)
+		})
+
+		it('should return IllegalNullValue SchemaError for all required prop that are null', () => {
+			const config = createConfig({
+				testProp: stringParam({ defaultValue: null }),
+				group: {
+					testProp: stringParam({ defaultValue: null }),
+				},
+				testProp2: stringParam({ defaultValue: null }),
+				testProp3: stringParam({ defaultValue: null, optional: true }),
+			})
+			const propertiesResult = config.getProperties()
+
+			expect(propertiesResult).toEqual(
+				err([
+					{
+						errorType: IllegalNullValue,
+						propertyPath: ['testProp'],
+						inputValue: null,
+					} as SchemaError,
+					{
+						errorType: IllegalNullValue,
+						propertyPath: ['group', 'testProp'],
+						inputValue: null,
+					} as SchemaError,
+					{
+						errorType: IllegalNullValue,
+						propertyPath: ['testProp2'],
+						inputValue: null,
+					} as SchemaError,
+				]),
+			)
+		})
+
+		it('should return SchemaError for all props with invalid data', () => {
+			const config = createConfig(
+				{
+					testProp: numberParam({ defaultValue: null }),
+					group: {
+						testProp: numberParam({ defaultValue: null }),
+					},
+					testProp2: stringParam({ defaultValue: null }),
+					testProp3: stringParam({ defaultValue: null, optional: true }),
+				},
+				{
+					env: {
+						TEST_PROP: 'abc',
+						GROUP_TEST_PROP: 'abc',
+					},
+				},
+			)
+			const propertiesResult = config.getProperties()
+
+			expect(propertiesResult).toEqual(
+				err([
+					{
+						errorType: NotConvertable,
+						propertyPath: ['testProp'],
+						inputValue: 'abc',
+					} as SchemaError,
+					{
+						errorType: NotConvertable,
+						propertyPath: ['group', 'testProp'],
+						inputValue: 'abc',
+					} as SchemaError,
+					{
+						errorType: IllegalNullValue,
+						propertyPath: ['testProp2'],
 						inputValue: null,
 					} as SchemaError,
 				]),
