@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="check affected code" type="Multirun" separateTabs="false" reuseTabsWithFailures="true" startOneByOne="true" markFailedProcess="true" hideSuccessProcess="false" delayTime="0.0">
+    <runConfiguration name="test affected" type="npm" />
+    <runConfiguration name="lint affected" type="npm" />
+    <runConfiguration name="build affected (prod)" type="npm" />
+    <method v="2" />
+  </configuration>
+</component>

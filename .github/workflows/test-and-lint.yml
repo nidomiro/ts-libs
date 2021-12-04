@@ -6,44 +6,44 @@ on:
             - 'main'
     pull_request:
         branches:
-            - "**"
+            - '**'
 
 jobs:
     lint:
         runs-on: ubuntu-latest
         steps:
-            -   uses: actions/checkout@v2
-                with:
-                    fetch-depth: 0
-            -   uses: ./.github/actions/setup
-            -   run: yarn nx affected:lint --base=origin/main --parallel
+            - uses: actions/checkout@v2
+              with:
+                  fetch-depth: 0
+            - uses: ./.github/actions/setup
+            - run: yarn nx affected:lint --base=origin/main --parallel
     test:
         runs-on: ubuntu-latest
 
         strategy:
             matrix:
-                node-version: [ 12, 14, 16 ]
+                node-version: [12, 14, 16]
 
         steps:
-            -   uses: actions/checkout@v2
-                with:
-                    fetch-depth: 0
-            -   uses: ./.github/actions/setup
-                with:
-                    node-version: ${{ matrix.node-version }}
-            -   run: yarn nx affected:test --base=origin/main --parallel
+            - uses: actions/checkout@v2
+              with:
+                  fetch-depth: 0
+            - uses: ./.github/actions/setup
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - run: yarn nx affected:test --base=origin/main --parallel
     build:
         runs-on: ubuntu-latest
 
         strategy:
             matrix:
-                node-version: [ 12, 14, 16 ]
+                node-version: [12, 14, 16]
 
         steps:
-            -   uses: actions/checkout@v2
-                with:
-                    fetch-depth: 0
-            -   uses: ./.github/actions/setup
-                with:
-                    node-version: ${{ matrix.node-version }}
-            -   run: yarn nx affected:build --base=origin/main --parallel --production
+            - uses: actions/checkout@v2
+              with:
+                  fetch-depth: 0
+            - uses: ./.github/actions/setup
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - run: yarn nx affected:build --base=origin/main --parallel --production

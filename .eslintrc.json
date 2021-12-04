@@ -35,7 +35,17 @@
 		{
 			"files": ["*.ts", "*.tsx"],
 			"extends": ["plugin:@nrwl/nx/typescript"],
-			"rules": {}
+			"rules": {
+				"@typescript-eslint/naming-convention": [
+					"error",
+					{
+						"selector": "memberLike",
+						"modifiers": ["private"],
+						"format": ["camelCase"],
+						"leadingUnderscore": "require"
+					}
+				]
+			}
 		},
 		{
 			"files": ["*.js", "*.jsx"],
