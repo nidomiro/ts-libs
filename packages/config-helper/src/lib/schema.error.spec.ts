@@ -1,7 +1,6 @@
-import { NotConvertable } from './schema'
-import { IllegalNullValue, schemaErrorToString } from './config'
+import { NotConvertable, IllegalNullValue, schemaErrorToString } from './schema.error'
 
-describe(`config`, () => {
+describe(`SchemaError`, () => {
 	describe(`schemaErrorToString`, () => {
 		it(`should print null input value correctly`, () => {
 			const result = schemaErrorToString({

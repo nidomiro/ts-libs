@@ -1,8 +1,7 @@
 import { createConfig } from './create-config'
 import { stringParam } from './params'
-import { IllegalNullValue, SchemaError, schemaErrorToString } from './config'
 import { err } from 'neverthrow'
-import { NotConvertable } from './schema'
+import { IllegalNullValue, SchemaError, schemaErrorToString, NotConvertable } from './schema.error'
 import { numberParam } from './params/number-param'
 
 describe('configHelper', () => {

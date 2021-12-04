@@ -1,6 +1,6 @@
 import { numberTransformer } from './number-transformer'
 import { err, ok } from 'neverthrow'
-import { NotConvertable } from '../schema'
+import { NotConvertable } from '../schema.error'
 
 describe('number-transformer', () => {
 	it.each([

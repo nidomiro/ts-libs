@@ -1,4 +1,5 @@
-import { ConfigValueTransformer, NotConvertable } from '../schema'
+import { ConfigValueTransformer } from '../schema'
+import { NotConvertable } from '../schema.error'
 import { err, ok } from 'neverthrow'
 
 export function stringTransformer(): ConfigValueTransformer<string> {

@@ -1,8 +1,6 @@
 import { ConfigDefinition, ConfigDefinitionCommon, ConfigDefinitionOptional, ConfigDefinitionRequired } from './schema'
 
-export interface ParamCommon<T> extends ConfigDefinitionCommon<T> {
-	trimValue?: boolean | 'start' | 'end'
-}
+export interface ParamCommon<T> extends ConfigDefinitionCommon<T> {}
 
 export interface RequiredParam<T> extends ParamCommon<T> {
 	optional?: false

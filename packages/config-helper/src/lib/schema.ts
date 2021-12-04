@@ -1,6 +1,5 @@
 import { Result } from 'neverthrow'
-
-export const NotConvertable: unique symbol = Symbol('NotConvertable')
+import { NotConvertable } from './schema.error'
 
 export const NoValue: unique symbol = Symbol('NoValue')
 
