@@ -95,63 +95,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 			}
 		}
 
-		function iterate(
-			currentObject: NormalizeSchema<TSchema>,
-			currentPath: string[],
-		): Result<Properties<TSchema>, SchemaError[]>
-		function iterate<TProp>(
-			currentObject: NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp>,
-			currentPath: string[],
-		): Result<Properties<TSchema> | TProp | null, SchemaError[]>
-		function iterate<TProp>(
-			currentObject: NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp>,
-			currentPath: string[],
-		): Result<Properties<TSchema> | TProp | null, SchemaError[]> {
-			if (isNormalizedSchemaObject(currentObject)) {
-				const processValue = processNormalizedSchemaObject(currentObject, currentPath)
-				if (processValue.isErr()) {
-					return err([processValue.error])
-				} else {
-					return ok(processValue.value)
-				}
-			} else {
-				const alteredObjects: Array<Result<NormalizeSchema<TSchema>, SchemaError[]>> = Object.entries(
-					currentObject,
-				).map((entry) => {
-					const [key, value] = entry
-					if (typeof value === 'object' && value != null) {
-						const iterateResult = iterate<TProp>(value as NormalizeSchema<TSchema>, [...currentPath, key])
-						if (iterateResult.isErr()) {
-							return err(iterateResult.error)
-						} else {
-							return ok({
-								[key]: iterateResult.value,
-							} as NormalizeSchema<TSchema>)
-						}
-					} else {
-						return ok({
-							[key]: value,
-						} as NormalizeSchema<TSchema>)
-					}
-				})
-				const errors = alteredObjects.reduce<SchemaError[]>(
-					(acc, x) => acc.concat(x.isErr() ? x.error : []),
-					[],
-				) // simulating flatmap
-				if (errors.length > 0) {
-					return err(errors)
-				} else {
-					const props = alteredObjects.reduce<Array<NormalizeSchema<TSchema>>>(
-						(acc, x) => acc.concat(x.isOk() ? [x.value] : []),
-						[],
-					) // simulating flatmap
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-					return ok(Object.assign({}, ...props))
-				}
-			}
-		}
-
-		return iterate(this.schema, [])
+		return this._convertNormalizedSchemaToProps(this.schema, [], processNormalizedSchemaObject)
 	}
 
 	private _getEnvVarValue(key: string, trim: boolean | 'start' | 'end'): string | typeof NoValue {
@@ -164,6 +108,75 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 				return NoValue
 			} else {
 				return trimmedValue
+			}
+		}
+	}
+
+	private _convertNormalizedSchemaToProps(
+		currentObject: NormalizeSchema<TSchema>,
+		currentPath: string[],
+		schemaObjectConverter: <TProp>(
+			obj: NormalizedConfigDefinition<TProp>,
+			propertyPath: string[],
+		) => Result<TProp | null, SchemaError>,
+	): Result<Properties<TSchema>, SchemaError[]>
+	private _convertNormalizedSchemaToProps<TProp>(
+		currentObject: NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp>,
+		currentPath: string[],
+		schemaObjectConverter: (
+			obj: NormalizedConfigDefinition<TProp>,
+			propertyPath: string[],
+		) => Result<TProp | null, SchemaError>,
+	): Result<Properties<TSchema> | TProp | null, SchemaError[]>
+	private _convertNormalizedSchemaToProps<TProp>(
+		currentObject: NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp>,
+		currentPath: string[],
+		schemaObjectConverter: (
+			obj: NormalizedConfigDefinition<TProp>,
+			propertyPath: string[],
+		) => Result<TProp | null, SchemaError>,
+	): Result<Properties<TSchema> | TProp | null, SchemaError[]> {
+		if (isNormalizedSchemaObject(currentObject)) {
+			const processValue = schemaObjectConverter(currentObject, currentPath)
+			if (processValue.isErr()) {
+				return err([processValue.error])
+			} else {
+				return ok(processValue.value)
+			}
+		} else {
+			const alteredObjects: Array<Result<NormalizeSchema<TSchema>, SchemaError[]>> = Object.entries(
+				currentObject,
+			).map((entry) => {
+				const [key, value] = entry
+				if (typeof value === 'object' && value != null) {
+					const iterateResult = this._convertNormalizedSchemaToProps<TProp>(
+						value as NormalizeSchema<TSchema>,
+						[...currentPath, key],
+						schemaObjectConverter,
+					)
+					if (iterateResult.isErr()) {
+						return err(iterateResult.error)
+					} else {
+						return ok({
+							[key]: iterateResult.value,
+						} as NormalizeSchema<TSchema>)
+					}
+				} else {
+					return ok({
+						[key]: value,
+					} as NormalizeSchema<TSchema>)
+				}
+			})
+			const errors = alteredObjects.reduce<SchemaError[]>((acc, x) => acc.concat(x.isErr() ? x.error : []), []) // simulating flatmap
+			if (errors.length > 0) {
+				return err(errors)
+			} else {
+				const props = alteredObjects.reduce<Array<NormalizeSchema<TSchema>>>(
+					(acc, x) => acc.concat(x.isOk() ? [x.value] : []),
+					[],
+				) // simulating flatmap
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+				return ok(Object.assign({}, ...props))
 			}
 		}
 	}
