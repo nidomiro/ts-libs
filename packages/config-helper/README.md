@@ -58,6 +58,14 @@ properties.someOptionalProp // type: string | null
 -   `stringParam({ defaultValue: '' })`: requires a string
 -   `param( {defaultValue: T, transformer: (val: unknown):T => {...} })`: a generic parameter where you can define the parameter type yourself
 
+#### Custom predefined params
+
+If you want to create a custom parameter like `numberParam` or `stringParam` you can use the function `paramUnsafe` inside your definition.
+`paramUnsafe` does not unsafe to execute, but typescript cannot infer the types correctly if used in a config-schema.
+To help typescript with type inference this method is wrapped.
+
+To create your custom parameter use `numberParam` as a guideline: [./src/lib/params/number-param.ts]()
+
 ### Config options
 
 This library provides some additional options:
