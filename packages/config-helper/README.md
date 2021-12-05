@@ -1,6 +1,6 @@
 # @nidomiro/config-helper
 
-![npm (scoped)](https://img.shields.io/npm/v/@nidomiro/config-helper) ![GitHub branch checks state](https://img.shields.io/github/checks-status/nidomiro/ts-tools/main?label=build)
+[![npm (scoped)](https://img.shields.io/npm/v/@nidomiro/config-helper)](https://www.npmjs.com/package/@nidomiro/config-helper) ![GitHub branch checks state](https://img.shields.io/github/checks-status/nidomiro/ts-tools/main?label=build)
 
 This library makes it easy to create configurable apps. For microservices this is especially useful if you want to create a [Twelve-Factor App](https://12factor.net).
 
