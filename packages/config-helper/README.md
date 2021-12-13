@@ -56,6 +56,8 @@ properties.someOptionalProp // type: string | null
 
 -   `numberParam({ defaultValue: 0 })`: requires a number
 -   `stringParam({ defaultValue: '' })`: requires a string
+-   `booleanParam({ defaultValue: false })`: requires a boolean
+-   `regexParam({ defaultValue: '', regex: /\d+/ })`: requires a string that matches the given regex
 -   `param( {defaultValue: T, transformer: (val: unknown):T => {...} })`: a generic parameter where you can define the parameter type yourself
 
 #### Custom predefined params
