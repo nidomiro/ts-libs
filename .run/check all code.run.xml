@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="check all code" type="Multirun" separateTabs="false" reuseTabsWithFailures="true" startOneByOne="true" markFailedProcess="true" hideSuccessProcess="false" delayTime="0.0">
+    <runConfiguration name="test all" type="npm" />
+    <runConfiguration name="lint all" type="npm" />
+    <runConfiguration name="build all (prod)" type="npm" />
+    <method v="2" />
+  </configuration>
+</component>

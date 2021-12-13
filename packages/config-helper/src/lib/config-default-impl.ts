@@ -120,6 +120,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 			propertyPath: string[],
 		) => Result<TProp | null, SchemaError>,
 	): Result<Properties<TSchema>, SchemaError[]>
+
 	private _convertNormalizedSchemaToProps<TProp>(
 		currentObject: NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp>,
 		currentPath: string[],
@@ -128,6 +129,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 			propertyPath: string[],
 		) => Result<TProp | null, SchemaError>,
 	): Result<Properties<TSchema> | TProp | null, SchemaError[]>
+
 	private _convertNormalizedSchemaToProps<TProp>(
 		currentObject: NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp>,
 		currentPath: string[],
@@ -171,10 +173,8 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 			if (errors.length > 0) {
 				return err(errors)
 			} else {
-				const props = alteredObjects.reduce<Array<NormalizeSchema<TSchema>>>(
-					(acc, x) => acc.concat(x.isOk() ? [x.value] : []),
-					[],
-				) // simulating flatmap
+				// prettier-ignore
+				const props = alteredObjects.reduce<Array<NormalizeSchema<TSchema>>>((acc, x) => acc.concat(x.isOk() ? [x.value] : []), [],) // simulating flatmap
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 				return ok(Object.assign({}, ...props))
 			}
