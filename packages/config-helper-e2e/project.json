@@ -1,0 +1,52 @@
+{
+	"root": "packages/config-helper-e2e",
+	"sourceRoot": "packages/config-helper-e2e/src",
+	"projectType": "application",
+	"targets": {
+		"build": {
+			"executor": "@nrwl/node:build",
+			"outputs": ["{options.outputPath}"],
+			"options": {
+				"outputPath": "dist/packages/config-helper-e2e",
+				"main": "packages/config-helper-e2e/src/main.ts",
+				"tsConfig": "packages/config-helper-e2e/tsconfig.app.json",
+				"assets": ["packages/config-helper-e2e/src/assets"]
+			},
+			"configurations": {
+				"production": {
+					"optimization": true,
+					"extractLicenses": true,
+					"inspect": false,
+					"fileReplacements": [
+						{
+							"replace": "packages/config-helper-e2e/src/environments/environment.ts",
+							"with": "packages/config-helper-e2e/src/environments/environment.prod.ts"
+						}
+					]
+				}
+			}
+		},
+		"serve": {
+			"executor": "@nrwl/node:execute",
+			"options": {
+				"buildTarget": "config-helper-e2e:build"
+			}
+		},
+		"lint": {
+			"executor": "@nrwl/linter:eslint",
+			"outputs": ["{options.outputFile}"],
+			"options": {
+				"lintFilePatterns": ["packages/config-helper-e2e/**/*.ts"]
+			}
+		},
+		"test": {
+			"executor": "@nrwl/jest:jest",
+			"outputs": ["coverage/packages/config-helper-e2e"],
+			"options": {
+				"jestConfig": "packages/config-helper-e2e/jest.config.js",
+				"passWithNoTests": true
+			}
+		}
+	},
+	"tags": []
+}

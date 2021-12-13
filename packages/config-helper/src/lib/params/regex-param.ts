@@ -2,23 +2,13 @@ import { ConfigDefinition, ConfigDefinitionOptional, ConfigDefinitionRequired } 
 import { OptionalParam, paramUnsafe, RequiredParam } from '../parm'
 import { regexTransformer } from './regex-transformer'
 
-interface RegexParam {
-	regex: RegExp
-}
-
+export function regexParam(def: Omit<OptionalParam<RegExp>, 'transformer'>): ConfigDefinitionOptional<RegExp>
+export function regexParam(def: Omit<RequiredParam<RegExp>, 'transformer'>): ConfigDefinitionRequired<RegExp>
 export function regexParam(
-	def: Omit<OptionalParam<string>, 'transformer'> & RegexParam,
-): ConfigDefinitionOptional<string>
-export function regexParam(
-	def: Omit<RequiredParam<string>, 'transformer'> & RegexParam,
-): ConfigDefinitionRequired<string>
-export function regexParam(
-	def:
-		| (Omit<RequiredParam<string>, 'transformer'> & RegexParam)
-		| Omit<OptionalParam<string> & RegexParam, 'transformer'>,
-): ConfigDefinition<string> | ConfigDefinitionRequired<string> {
+	def: Omit<RequiredParam<RegExp>, 'transformer'> | Omit<OptionalParam<RegExp>, 'transformer'>,
+): ConfigDefinition<RegExp> | ConfigDefinitionRequired<RegExp> {
 	return paramUnsafe({
 		...def,
-		transformer: regexTransformer(def.regex),
+		transformer: regexTransformer(),
 	})
 }

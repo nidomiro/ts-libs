@@ -2,19 +2,13 @@ import { regexParam } from './regex-param'
 import { ConfigValueTransformer } from '../schema'
 import { regexTransformer } from './regex-transformer'
 
-function checkRegexTransformerCompatibility(
-	transformer: ConfigValueTransformer<string>,
-	regex: RegExp,
-	val: unknown,
-): void {
-	expect(transformer(val)).toEqual(regexTransformer(regex)(val))
+function checkRegexTransformerCompatibility(transformer: ConfigValueTransformer<RegExp>, val: unknown): void {
+	expect(transformer(val)).toEqual(regexTransformer()(val))
 }
 
 describe('regex-param', () => {
 	it('should construct param with all mentioned explicit options', () => {
-		const regex = /\d+/
-
-		const param = regexParam({ defaultValue: null, regex, optional: true, trimValue: 'start', envVar: 'ABC' })
+		const param = regexParam({ defaultValue: null, optional: true, trimValue: 'start', envVar: 'ABC' })
 
 		expect(param).toMatchObject({
 			defaultValue: null,
@@ -23,15 +17,13 @@ describe('regex-param', () => {
 			optional: true,
 		})
 
-		checkRegexTransformerCompatibility(param.transformer, regex, 'str')
-		checkRegexTransformerCompatibility(param.transformer, regex, '0')
-		checkRegexTransformerCompatibility(param.transformer, regex, null)
+		checkRegexTransformerCompatibility(param.transformer, 'str')
+		checkRegexTransformerCompatibility(param.transformer, '^\\d+$')
+		checkRegexTransformerCompatibility(param.transformer, null)
 	})
 
 	it('should construct param with all mentioned explicit options', () => {
-		const regex = /\d+/
-
-		const param = regexParam({ defaultValue: null, regex })
+		const param = regexParam({ defaultValue: null })
 
 		expect(param).toMatchObject({
 			defaultValue: null,
@@ -40,8 +32,8 @@ describe('regex-param', () => {
 		expect(param).not.toHaveProperty('trimValue')
 		expect(param).not.toHaveProperty('envVar')
 
-		checkRegexTransformerCompatibility(param.transformer, regex, 'str')
-		checkRegexTransformerCompatibility(param.transformer, regex, '0')
-		checkRegexTransformerCompatibility(param.transformer, regex, null)
+		checkRegexTransformerCompatibility(param.transformer, 'str')
+		checkRegexTransformerCompatibility(param.transformer, '^\\d+$')
+		checkRegexTransformerCompatibility(param.transformer, null)
 	})
 })
