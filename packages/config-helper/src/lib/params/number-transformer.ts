@@ -3,8 +3,11 @@ import { NotConvertable } from '../schema.error'
 import { err, ok, Result } from 'neverthrow'
 
 function handleString(val: string): Result<number | null, typeof NotConvertable> {
-	if (val.trim().length === 0) {
+	if (val.length === 0) {
 		return ok(null)
+	}
+	if (val.length !== val.trim().length) {
+		return err(NotConvertable)
 	}
 
 	const converted = Number(val)
