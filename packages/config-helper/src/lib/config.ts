@@ -8,4 +8,6 @@ export interface Config<TSchema extends Schema<unknown>> {
 	getSchema: () => NormalizeSchema<TSchema>
 
 	getProperties: () => Result<Properties<TSchema>, SchemaError[]>
+
+	getPropertiesOrThrow: () => Properties<TSchema>
 }

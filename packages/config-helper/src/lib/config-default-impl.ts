@@ -9,6 +9,7 @@ import { lazy } from './utils/lazy'
 import { trimString } from './utils/string-util'
 import { err, ok, Result } from 'neverthrow'
 import assertNever from 'assert-never'
+import { ConfigError } from './config.error'
 
 export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Config<TSchema> {
 	public readonly schema: NormalizeSchema<TSchema>
@@ -30,6 +31,13 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 
 	getProperties(): Result<Properties<TSchema>, SchemaError[]> {
 		return this._properties.value
+	}
+	getPropertiesOrThrow(): Properties<TSchema> {
+		const properties = this.getProperties()
+		if (properties.isErr()) {
+			throw new ConfigError(properties.error)
+		}
+		return properties.value
 	}
 
 	private _calculateProperties(): Result<Properties<TSchema>, SchemaError[]> {
