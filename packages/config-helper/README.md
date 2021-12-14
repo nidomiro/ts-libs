@@ -29,17 +29,22 @@ Here you define what parameters you want to have and how they are converted and 
 Example:
 
 ```typescript
-import { createConfig, stringParam, numberParam, schemaErrorToString } from '@nidomiro/config-helper'
+import { booleanParam, createConfig, numberParam, regexParam, stringParam } from '@nidomiro/config-helper'
 
-const config = createConfig({
+export const config = createConfig({
 	env: stringParam({ defaultValue: 'production', envVar: 'NODE_ENV' /* This won't be overwritten by default */ }),
 	port: numberParam({ defaultValue: 8080 }), // Will be configurable via env-var 'PORT'
 	database: {
-		connectionUrl: stringParam({ defaultValue: 'my-db-server.example.org' }), // Will be configurable via env-var 'DATABASE_CONNECTION_URL'
+		connectionUrl: stringParam({
+			defaultValue: 'dbms://my-db-server.example.org',
+			matches: /^dbms:\/\/[\w-]+(:?\.[\w-]+)*$/,
+		}), // Will be configurable via env-var 'DATABASE_CONNECTION_URL' and checked if it matches the given regex
 		username: stringParam({ defaultValue: null }), // Will be configurable via env-var 'DATABASE_USERNAME' and will return an error if it wasn't set
 		password: stringParam({ defaultValue: null }), // Will be configurable via env-var 'DATABASE_PASSWORD' and will return an error if it wasn't set
 	},
 	someOptionalProp: stringParam({ defaultValue: null, optional: true }), // Will be configurable via env-var 'SOME_OPTIONAL_PROP' and can be null
+	enableFeatureX: booleanParam({ defaultValue: false }), // Will be configurable via env-var 'ENABLE_FEATURE_X'
+	nameValidationRegex: regexParam({ defaultValue: /\w+/ }), // Will be configurable via env-var 'NAME_VALIDATION_REGEX' and checked if it is a valid regex
 })
 
 const propertiesResult = config.getProperties() // contains either the properties or a list of errors (uses neverthrow's Result)
@@ -47,6 +52,10 @@ if (propertiesResult.isErr()) {
 	// Not the best error handling, but it showcases that you'll get a list with all errors
 	throw new Error(`Configuration-errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
 }
+
+// If you do not plan to use the error for further logic you can call getPropertiesOrThrow() instead
+// const properties = config.getPropertiesOrThrow()
+
 const properties = propertiesResult.value
 properties.database.connectionUrl // Access the properties as you would expect; type: string
 properties.someOptionalProp // type: string | null
@@ -57,7 +66,7 @@ properties.someOptionalProp // type: string | null
 -   `numberParam({ defaultValue: 0 })`: requires a number
 -   `stringParam({ defaultValue: '' })`: requires a string that optionally matches a regex with option `matches`
 -   `booleanParam({ defaultValue: false })`: requires a boolean
--   `regexParam({ defaultValue: '', regex: /\d+/ })`: requires a Regular Expression
+-   `regexParam({ defaultValue: '' })`: requires a Regular Expression
 -   `param( {defaultValue: T, transformer: (val: unknown):T => {...} })`: a generic parameter where you can define the parameter type yourself
 
 #### Custom predefined params

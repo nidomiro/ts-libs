@@ -3,7 +3,7 @@ import { stringParam } from './params'
 import { err } from 'neverthrow'
 import { IllegalNullValue, NotConvertable, SchemaError, schemaErrorToString } from './schema.error'
 import { numberParam } from './params/number-param'
-import { ConfigError } from '@nidomiro/config-helper'
+import { ConfigError } from './config.error'
 
 describe('configHelper', () => {
 	describe('schema tests', () => {

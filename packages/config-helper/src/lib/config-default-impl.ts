@@ -1,6 +1,6 @@
 import { Properties } from './properties'
 import { NoValue, Schema } from './schema'
-import { NotConvertable, IllegalNullValue, SchemaError } from './schema.error'
+import { IllegalNullValue, NotConvertable, SchemaError } from './schema.error'
 import { Config } from './config'
 import { isNormalizedSchemaObject, NormalizedConfigDefinition, NormalizeSchema } from './normalized-schema'
 import { ConfigOptions } from './config-options'
@@ -13,7 +13,12 @@ import { ConfigError } from './config.error'
 
 export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Config<TSchema> {
 	public readonly schema: NormalizeSchema<TSchema>
-	public readonly environment: NodeJS.ProcessEnv
+
+	public get environment(): NodeJS.ProcessEnv {
+		return this._environment
+	}
+
+	private _environment: NodeJS.ProcessEnv
 
 	private readonly _originalSchema: TSchema
 
@@ -22,7 +27,12 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 	constructor(schema: TSchema, private readonly _opts?: ConfigOptions) {
 		this._originalSchema = schema
 		this.schema = normalizeSchema(this._originalSchema, this._opts)
-		this.environment = _opts?.env ?? process.env
+		this._environment = _opts?.env ?? process.env
+	}
+
+	setEnvironment(newEnv: NodeJS.ProcessEnv): void {
+		this._environment = newEnv
+		this._properties.reset()
 	}
 
 	getSchema(): NormalizeSchema<TSchema> {
@@ -32,6 +42,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 	getProperties(): Result<Properties<TSchema>, SchemaError[]> {
 		return this._properties.value
 	}
+
 	getPropertiesOrThrow(): Properties<TSchema> {
 		const properties = this.getProperties()
 		if (properties.isErr()) {
