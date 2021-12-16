@@ -2,6 +2,8 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.1](https://github.com/nidomiro/ts-tools/compare/config-helper@0.2.0...config-helper@0.2.1) (2021-12-16)
+
 # [0.2.0](https://github.com/nidomiro/ts-tools/compare/config-helper@0.1.6...config-helper@0.2.0) (2021-12-16)
 
 ### Features
