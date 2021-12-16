@@ -30,7 +30,7 @@ The first parameter represents the configuration schema.
 Here you define what parameters you want to have and how they are converted and validated.
 
 Example:
-(If you want more examples, head over to [](https://github.com/nidomiro/ts-tools/tree/main/packages/config-helper-e2e/))
+(If you want more examples, head over to [config-helper-e2e](https://github.com/nidomiro/ts-tools/tree/main/packages/config-helper-e2e/))
 
 ```typescript
 import { booleanParam, createConfig, numberParam, regexParam, stringParam } from '@nidomiro/config-helper'
