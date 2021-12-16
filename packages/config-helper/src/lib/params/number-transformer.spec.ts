@@ -7,7 +7,7 @@ describe('number-transformer', () => {
 		[42, ok(42)],
 		[null, ok(null)],
 		['', ok(null)],
-		[' \t', ok(null)],
+		[' \t', err(NotConvertable)],
 		['42', ok(42)],
 		['abc', err(NotConvertable)],
 		[{}, err(NotConvertable)],

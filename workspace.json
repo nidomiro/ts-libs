@@ -1,6 +1,7 @@
 {
 	"version": 2,
 	"projects": {
-		"config-helper": "packages/config-helper"
+		"config-helper": "packages/config-helper",
+		"config-helper-e2e": "packages/config-helper-e2e"
 	}
 }

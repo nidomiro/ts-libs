@@ -1,8 +1,9 @@
 import { createConfig } from './create-config'
 import { stringParam } from './params'
 import { err } from 'neverthrow'
-import { IllegalNullValue, SchemaError, schemaErrorToString, NotConvertable } from './schema.error'
+import { IllegalNullValue, NotConvertable, SchemaError, schemaErrorToString } from './schema.error'
 import { numberParam } from './params/number-param'
+import { ConfigError } from './config.error'
 
 describe('configHelper', () => {
 	describe('schema tests', () => {
@@ -411,6 +412,28 @@ describe('configHelper', () => {
 			const properties = propertiesResult.value
 
 			expect(properties.testProp).toEqual(' \tabc \t')
+		})
+	})
+
+	describe('getPropertyOrThrow', () => {
+		it(`should throw if an error occurred`, () => {
+			const config = createConfig({
+				testProp: stringParam({ defaultValue: null, optional: false }),
+			})
+
+			expect(() => config.getPropertiesOrThrow()).toThrow(ConfigError)
+			try {
+				config.getPropertiesOrThrow()
+				fail()
+			} catch (configError) {
+				if (configError instanceof ConfigError) {
+					expect(configError.errors).toEqual([
+						{ errorType: IllegalNullValue, propertyPath: ['testProp'], inputValue: null },
+					])
+				} else {
+					fail()
+				}
+			}
 		})
 	})
 })

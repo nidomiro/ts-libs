@@ -1,6 +1,6 @@
 import { Properties } from './properties'
 import { NoValue, Schema } from './schema'
-import { NotConvertable, IllegalNullValue, SchemaError } from './schema.error'
+import { IllegalNullValue, NotConvertable, SchemaError } from './schema.error'
 import { Config } from './config'
 import { isNormalizedSchemaObject, NormalizedConfigDefinition, NormalizeSchema } from './normalized-schema'
 import { ConfigOptions } from './config-options'
@@ -9,10 +9,16 @@ import { lazy } from './utils/lazy'
 import { trimString } from './utils/string-util'
 import { err, ok, Result } from 'neverthrow'
 import assertNever from 'assert-never'
+import { ConfigError } from './config.error'
 
 export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Config<TSchema> {
 	public readonly schema: NormalizeSchema<TSchema>
-	public readonly environment: NodeJS.ProcessEnv
+
+	public get environment(): NodeJS.ProcessEnv {
+		return this._environment
+	}
+
+	private _environment: NodeJS.ProcessEnv
 
 	private readonly _originalSchema: TSchema
 
@@ -21,7 +27,12 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 	constructor(schema: TSchema, private readonly _opts?: ConfigOptions) {
 		this._originalSchema = schema
 		this.schema = normalizeSchema(this._originalSchema, this._opts)
-		this.environment = _opts?.env ?? process.env
+		this._environment = _opts?.env ?? process.env
+	}
+
+	setEnvironment(newEnv: NodeJS.ProcessEnv): void {
+		this._environment = newEnv
+		this._properties.reset()
 	}
 
 	getSchema(): NormalizeSchema<TSchema> {
@@ -30,6 +41,14 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 
 	getProperties(): Result<Properties<TSchema>, SchemaError[]> {
 		return this._properties.value
+	}
+
+	getPropertiesOrThrow(): Properties<TSchema> {
+		const properties = this.getProperties()
+		if (properties.isErr()) {
+			throw new ConfigError(properties.error)
+		}
+		return properties.value
 	}
 
 	private _calculateProperties(): Result<Properties<TSchema>, SchemaError[]> {
@@ -120,6 +139,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 			propertyPath: string[],
 		) => Result<TProp | null, SchemaError>,
 	): Result<Properties<TSchema>, SchemaError[]>
+
 	private _convertNormalizedSchemaToProps<TProp>(
 		currentObject: NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp>,
 		currentPath: string[],
@@ -128,6 +148,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 			propertyPath: string[],
 		) => Result<TProp | null, SchemaError>,
 	): Result<Properties<TSchema> | TProp | null, SchemaError[]>
+
 	private _convertNormalizedSchemaToProps<TProp>(
 		currentObject: NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp>,
 		currentPath: string[],
@@ -171,10 +192,8 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 			if (errors.length > 0) {
 				return err(errors)
 			} else {
-				const props = alteredObjects.reduce<Array<NormalizeSchema<TSchema>>>(
-					(acc, x) => acc.concat(x.isOk() ? [x.value] : []),
-					[],
-				) // simulating flatmap
+				// prettier-ignore
+				const props = alteredObjects.reduce<Array<NormalizeSchema<TSchema>>>((acc, x) => acc.concat(x.isOk() ? [x.value] : []), [],) // simulating flatmap
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 				return ok(Object.assign({}, ...props))
 			}
