@@ -8,11 +8,11 @@ function checkRegexTransformerCompatibility(transformer: ConfigValueTransformer<
 
 describe('regex-param', () => {
 	it('should construct param with all mentioned explicit options', () => {
-		const param = regexParam({ defaultValue: null, optional: true, trimValue: 'start', envVar: 'ABC' })
+		const param = regexParam({ defaultValue: null, optional: true, envVar: 'ABC' })
 
 		expect(param).toMatchObject({
 			defaultValue: null,
-			trimValue: 'start',
+			trimValue: true,
 			envVar: 'ABC',
 			optional: true,
 		})
@@ -28,8 +28,8 @@ describe('regex-param', () => {
 		expect(param).toMatchObject({
 			defaultValue: null,
 			optional: false,
+			trimValue: true,
 		})
-		expect(param).not.toHaveProperty('trimValue')
 		expect(param).not.toHaveProperty('envVar')
 
 		checkRegexTransformerCompatibility(param.transformer, 'str')

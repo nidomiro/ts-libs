@@ -8,11 +8,11 @@ function checkNumberTransformerCompatibility(transformer: ConfigValueTransformer
 
 describe('number-param', () => {
 	it('should construct param with all mentioned explicit options', () => {
-		const param = numberParam({ defaultValue: null, trimValue: 'start', envVar: 'ABC', optional: true })
+		const param = numberParam({ defaultValue: null, envVar: 'ABC', optional: true })
 
 		expect(param).toMatchObject({
 			defaultValue: null,
-			trimValue: 'start',
+			trimValue: true,
 			envVar: 'ABC',
 			optional: true,
 		})
@@ -28,8 +28,8 @@ describe('number-param', () => {
 		expect(param).toMatchObject({
 			defaultValue: null,
 			optional: false,
+			trimValue: true,
 		})
-		expect(param).not.toHaveProperty('trimValue')
 		expect(param).not.toHaveProperty('envVar')
 
 		checkNumberTransformerCompatibility(param.transformer, 42)
