@@ -2,9 +2,12 @@
 
 [![npm (scoped)](https://img.shields.io/npm/v/@nidomiro/config-helper)](https://www.npmjs.com/package/@nidomiro/config-helper) ![GitHub branch checks state](https://img.shields.io/github/checks-status/nidomiro/ts-tools/main?label=build)
 
-This library makes it easy to create configurable apps. For microservices this is especially useful if you want to create a [Twelve-Factor App](https://12factor.net).
+This library makes it easy to create configurable apps in TypeScript.
+As you may already know configuration is a key aspect of a [Twelve-Factor App](https://12factor.net).
 
-The library was inspired by [node-convict](https://github.com/mozilla/node-convict) but rewritten in typescript and with some useful extra features.
+If you use this library you only need to define the configuration schema once and get a correctly typed configuration object or an error containing all the made configurations that violate the schema.
+
+The library was inspired by [node-convict](https://github.com/mozilla/node-convict) but rewritten in TypeScript and with some useful extra features.
 
 ## Installation
 
@@ -27,6 +30,7 @@ The first parameter represents the configuration schema.
 Here you define what parameters you want to have and how they are converted and validated.
 
 Example:
+(If you want more examples, head over to [](https://github.com/nidomiro/ts-tools/tree/main/packages/config-helper-e2e/))
 
 ```typescript
 import { booleanParam, createConfig, numberParam, regexParam, stringParam } from '@nidomiro/config-helper'
@@ -71,9 +75,9 @@ properties.someOptionalProp // type: string | null
 
 #### Custom predefined params
 
-If you want to create a custom parameter like `numberParam` or `stringParam` you can use the function `paramUnsafe` inside your definition.
-`paramUnsafe` does not unsafe to execute, but typescript cannot infer the types correctly if used in a config-schema.
-To help typescript with type inference this method is wrapped.
+If you want to create a custom param you can use the function `paramUnsafe` inside your function definition.
+`paramUnsafe` is not unsafe to execute, but TypeScript cannot infer the types correctly if used in a config-schema.
+To help TypeScript with type inference this method is wrapped.
 
 To create your custom parameter use `numberParam` as a guideline: [./src/lib/params/number-param.ts]()
 
