@@ -41,4 +41,29 @@ describe(`config tests`, () => {
 			}
 		}
 	})
+
+	it(`valid config properties test`, () => {
+		config.setEnvironment({
+			NODE_ENV: 'development',
+			PORT: '80',
+			DATABASE_CONNECTION_URL: 'dbms://test.local',
+			DATABASE_USERNAME: 'testUser',
+			DATABASE_PASSWORD: 'testPassword',
+			ENABLE_FEATURE_X: 'true', // '1' also works
+			NAME_VALIDATION_REGEX: '^\\d+$',
+		})
+
+		expect(config.getPropertiesOrThrow()).toEqual({
+			env: 'development',
+			port: 80, // Will be configurable via env-var 'PORT'
+			database: {
+				connectionUrl: 'dbms://test.local',
+				username: 'testUser',
+				password: 'testPassword',
+			},
+			someOptionalProp: null,
+			enableFeatureX: true,
+			nameValidationRegex: /^\d+$/,
+		})
+	})
 })
