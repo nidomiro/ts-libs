@@ -1,8 +1,8 @@
 import { NormalizeSchema } from './normalized-schema'
 import { Schema } from './schema'
-import { SchemaError } from './schema.error'
 import { Properties } from './properties'
 import { Result } from 'neverthrow'
+import { ConfigHelperError } from './config-helper.error'
 
 export interface Config<TSchema extends Schema<unknown>> {
 	/**
@@ -13,7 +13,7 @@ export interface Config<TSchema extends Schema<unknown>> {
 	/**
 	 * Returns the evaluated schema (=> Properties) or all occurred errors
 	 */
-	getProperties: () => Result<Properties<TSchema>, SchemaError[]>
+	getProperties: () => Result<Properties<TSchema>, ConfigHelperError[]>
 
 	/**
 	 * Returns the evaluated schema (=> Properties) or throws a ConfigError containing all occurred errors

@@ -25,8 +25,8 @@ describe(`ConfigError`, () => {
 
 			expect(error.toString()).toEqual(
 				`ConfigError: {"errors": [\n` +
-					`\tSchemaError: {"errorType": Symbol(NotConvertable), "propertyPath": ["testProp"],"inputValue": "abc"},\n` +
-					`\tSchemaError: {"errorType": Symbol(IllegalNullValue), "propertyPath": ["anotherProp"],"inputValue": null},\n` +
+					`\t{"errorType":"Symbol(NotConvertable)","propertyPath":["testProp"],"inputValue":"abc"},\n` +
+					`\t{"errorType":"Symbol(IllegalNullValue)","propertyPath":["anotherProp"],"inputValue":null},\n` +
 					`]}`,
 			)
 		})
