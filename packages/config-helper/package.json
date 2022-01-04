@@ -20,18 +20,21 @@
 	"keywords": [
 		"configuration",
 		"config",
+		"config-helper",
 		"conf",
 		"key value store",
 		"schema",
 		"nested",
 		"validation",
 		"customize",
+		"customizable",
 		"env",
 		"environment",
 		"json",
-		"yaml",
-		"toml",
 		"ts",
-		"typescript"
+		"typescript",
+		"microservice",
+		"microservices",
+		"ms"
 	]
 }
