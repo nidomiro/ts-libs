@@ -6,13 +6,12 @@ import { isNormalizedSchemaObject, NormalizedConfigDefinition, NormalizeSchema }
 import { ConfigOptions } from './config-options'
 import { normalizeSchema } from './create-config'
 import { lazy } from './utils/lazy'
-import { trimString } from './utils/string-util'
 import { err, ok, Result } from 'neverthrow'
 import assertNever from 'assert-never'
 import { ConfigError } from './config.error'
-import * as fs from 'fs'
-import { ConfigParseError } from './config-parse.error'
 import { ConfigHelperError } from './config-helper.error'
+import { envVarLoader, fileEnvVarLoader, Loader } from './loader'
+import { defaultLoader } from './loader/default.loader'
 
 export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Config<TSchema> {
 	public readonly schema: NormalizeSchema<TSchema>
@@ -59,13 +58,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 			obj: NormalizedConfigDefinition<TProp>,
 			propertyPath: string[],
 		): Result<TProp | null, ConfigHelperError> => {
-			const potentialValueGenerators: Array<
-				() => Result<TProp | string | null | typeof NoValue, ConfigParseError>
-			> = [
-				() => this._getEnvVarValue(obj.envVar, obj.trimValue),
-				() => this._getFileEnvVarValue(obj.envVar, obj.trimValue),
-				() => ok(obj.defaultValue),
-			]
+			const potentialValueGenerators: Loader[] = [envVarLoader, fileEnvVarLoader, defaultLoader]
 
 			const valueTransformer = (
 				value: TProp | string | null | typeof NoValue,
@@ -95,7 +88,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 					if ((acc.isOk() && acc.value !== NoValue) || acc.isErr()) {
 						return acc
 					}
-					const rawValueResult = currentValue()
+					const rawValueResult = currentValue<TProp>(this.environment, obj)
 					if (rawValueResult.isErr()) {
 						return err(rawValueResult.error)
 					}
@@ -128,51 +121,6 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 		}
 
 		return this._convertNormalizedSchemaToProps(this.schema, [], processNormalizedSchemaObject)
-	}
-
-	private _getEnvVarValue(
-		key: string,
-		trim: boolean | 'start' | 'end',
-	): Result<string | typeof NoValue, ConfigParseError> {
-		const value = this.environment[key]
-		if (value == null) {
-			return ok(NoValue)
-		} else {
-			const trimmedValue = trimString(value, trim)
-			if (trimmedValue.length === 0) {
-				return ok(NoValue)
-			} else {
-				return ok(trimmedValue)
-			}
-		}
-	}
-
-	private _getFileEnvVarValue(
-		keyWithoutPostfix: string,
-		trim: boolean | 'start' | 'end',
-	): Result<string | typeof NoValue, ConfigParseError> {
-		const valueFilePath = this._environment[`${keyWithoutPostfix}_FILE`]
-		if (valueFilePath == null) {
-			return ok(NoValue)
-		} else {
-			try {
-				const value = fs.readFileSync(valueFilePath.trim(), 'utf8')
-				const trimmedValue = trimString(value, trim)
-				if (trimmedValue.length === 0) {
-					return ok(NoValue)
-				} else {
-					return ok(trimmedValue)
-				}
-			} catch (e: unknown) {
-				return err({
-					//FIXME: replace with error that makes more sense here
-					errorType: NotConvertable,
-					propertyPath: [],
-					inputValue: valueFilePath,
-					cause: e,
-				} as ConfigParseError)
-			}
-		}
 	}
 
 	private _convertNormalizedSchemaToProps(
