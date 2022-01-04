@@ -4,6 +4,8 @@ import { err } from 'neverthrow'
 import { IllegalNullValue, NotConvertable, SchemaError } from './schema.error'
 import { numberParam } from './params/number-param'
 import { ConfigError } from './config.error'
+import { FileNotFound } from './loader'
+import { ConfigHelperError } from './config-helper.error'
 
 describe('configHelper', () => {
 	describe('schema tests', () => {
@@ -418,11 +420,17 @@ describe('configHelper', () => {
 			expect(propertiesResult).toEqual(
 				err([
 					{
-						errorType: NotConvertable,
+						errorType: FileNotFound,
 						propertyPath: ['testProp'],
-						inputValue: `${__dirname}/test-files/test-prop-file-not-existent`,
+						filePath: `${__dirname}/test-files/test-prop-file-not-existent`,
+						cause: new (class extends Error {
+							code = 'ENOENT'
+							errno = -2
+							path = `${__dirname}/test-files/test-prop-file-not-existent`
+							syscall = 'open'
+						})(),
 					},
-				] as SchemaError[]),
+				] as ConfigHelperError[]),
 			)
 		})
 	})

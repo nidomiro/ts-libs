@@ -88,7 +88,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 					if ((acc.isOk() && acc.value !== NoValue) || acc.isErr()) {
 						return acc
 					}
-					const rawValueResult = currentValue<TProp>(this.environment, obj)
+					const rawValueResult = currentValue<TProp>(this.environment, obj, propertyPath)
 					if (rawValueResult.isErr()) {
 						return err(rawValueResult.error)
 					}

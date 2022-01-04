@@ -5,11 +5,13 @@ import { trimString } from '../utils/string-util'
 import { Loader } from './loader'
 import * as fs from 'fs'
 import { ConfigParseError } from '../config-parse.error'
-import { NotConvertable } from '../schema.error'
+import { FileNotFound, FilePermissionError, NotLoadable } from './symbols'
+import { isNonNilObject } from '../utils/object-util'
 
 export const fileEnvVarLoader: Loader = <T>(
 	environment: NodeJS.ProcessEnv,
 	configDef: NormalizedConfigDefinition<T>,
+	propertyPath: string[],
 ) => {
 	const valueFilePath = environment[`${configDef.envVar}_FILE`]
 	if (valueFilePath == null) {
@@ -24,13 +26,28 @@ export const fileEnvVarLoader: Loader = <T>(
 				return ok(trimmedValue)
 			}
 		} catch (e: unknown) {
-			return err({
-				//FIXME: replace with error that makes more sense here
-				errorType: NotConvertable,
-				propertyPath: [],
-				inputValue: valueFilePath,
-				cause: e,
-			} as ConfigParseError)
+			if (isNonNilObject(e) && e['code'] === 'ENOENT') {
+				return err({
+					errorType: FileNotFound,
+					propertyPath,
+					filePath: valueFilePath,
+					cause: e,
+				} as ConfigParseError)
+			} else if (isNonNilObject(e) && e['code'] === 'EACCES') {
+				return err({
+					errorType: FilePermissionError,
+					propertyPath,
+					filePath: valueFilePath,
+					cause: e,
+				} as ConfigParseError)
+			} else {
+				return err({
+					errorType: NotLoadable,
+					propertyPath,
+					filePath: valueFilePath,
+					cause: e,
+				} as ConfigParseError)
+			}
 		}
 	}
 }
