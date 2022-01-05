@@ -9,6 +9,15 @@ If you use this library you only need to define the configuration schema once an
 
 The library was inspired by [node-convict](https://github.com/mozilla/node-convict) but rewritten in TypeScript and with some useful extra features.
 
+## Feature overview
+
+-   Fully typed configuration
+-   Input validation
+-   Automatic env-var mapping
+-   Support for `*_FILE` env-vars
+-   Does not throw Errors if not mentioned explicitly (`getProperties` vs `getPropertiesOrThrow`)
+-   Very extendable
+
 ## Installation
 
 npm
@@ -28,6 +37,16 @@ yarn add @nidomiro/config-helper
 To start execute `createConfig` and store it's return value in a variable.
 The first parameter represents the configuration schema.
 Here you define what parameters you want to have and how they are converted and validated.
+
+If you don't want to supply the value directly via an env-var, you can make use of `*_FILE`-env-vars.
+In the example below you could provide the env-var `DATABASE_PASSWORD_FILE` with the path to a file instead of the env-var `DATABASE_PASSWORD`.
+The whole content of the given file is then used as value.
+
+Config resolution order:
+
+1. env-var
+2. file env-var
+3. default value
 
 Example:
 (If you want more examples, head over to [config-helper-e2e](https://github.com/nidomiro/ts-tools/tree/main/packages/config-helper-e2e/))
@@ -65,7 +84,7 @@ properties.database.connectionUrl // Access the properties as you would expect; 
 properties.someOptionalProp // type: string | null
 ```
 
-### Available param types
+## Available param types
 
 -   `numberParam({ defaultValue: 0 })`: requires a number
 -   `stringParam({ defaultValue: '' })`: requires a string that optionally matches a regex with option `matches`
@@ -73,7 +92,7 @@ properties.someOptionalProp // type: string | null
 -   `regexParam({ defaultValue: '' })`: requires a Regular Expression
 -   `param( {defaultValue: T, transformer: (val: unknown):T => {...} })`: a generic parameter where you can define the parameter type yourself
 
-#### Custom predefined params
+### Custom predefined params
 
 If you want to create a custom param you can use the function `paramUnsafe` inside your function definition.
 `paramUnsafe` is not unsafe to execute, but TypeScript cannot infer the types correctly if used in a config-schema.

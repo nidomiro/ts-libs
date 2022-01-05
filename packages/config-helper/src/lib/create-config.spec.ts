@@ -1,9 +1,11 @@
 import { createConfig } from './create-config'
 import { stringParam } from './params'
 import { err } from 'neverthrow'
-import { IllegalNullValue, NotConvertable, SchemaError, schemaErrorToString } from './schema.error'
+import { IllegalNullValue, NotConvertable, SchemaError } from './schema.error'
 import { numberParam } from './params/number-param'
 import { ConfigError } from './config.error'
+import { FileNotFound, FilePermissionError } from './loader'
+import { ConfigHelperError } from './config-helper.error'
 
 describe('configHelper', () => {
 	describe('schema tests', () => {
@@ -94,12 +96,7 @@ describe('configHelper', () => {
 				testProp: stringParam({ defaultValue: 'testPropValue' }),
 			})
 
-			const propertiesResult = config.getProperties()
-
-			if (propertiesResult.isErr()) {
-				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
-			}
-			const properties = propertiesResult.value
+			const properties = config.getPropertiesOrThrow()
 
 			expect(properties.testProp).toEqual('TestPropValueFromProcessEnv')
 			delete process.env.TEST_PROP
@@ -117,12 +114,7 @@ describe('configHelper', () => {
 					},
 				},
 			)
-			const propertiesResult = config.getProperties()
-
-			if (propertiesResult.isErr()) {
-				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
-			}
-			const properties = propertiesResult.value
+			const properties = config.getPropertiesOrThrow()
 
 			expect(properties.testProp).toEqual('TestPropValueFromConfigEnv')
 		})
@@ -222,12 +214,7 @@ describe('configHelper', () => {
 			const config = createConfig({
 				testProp: stringParam({ defaultValue: null, optional: true }),
 			})
-			const propertiesResult = config.getProperties()
-
-			if (propertiesResult.isErr()) {
-				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
-			}
-			const properties = propertiesResult.value
+			const properties = config.getPropertiesOrThrow()
 
 			expect(properties.testProp).toEqual(null)
 		})
@@ -243,12 +230,7 @@ describe('configHelper', () => {
 					},
 				},
 			)
-			const propertiesResult = config.getProperties()
-
-			if (propertiesResult.isErr()) {
-				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
-			}
-			const properties = propertiesResult.value
+			const properties = config.getPropertiesOrThrow()
 
 			expect(properties.testProp).toEqual('TestPropValueFromEnv')
 		})
@@ -265,12 +247,7 @@ describe('configHelper', () => {
 					envPrefix: 'MY_FANCY_PREFIX',
 				},
 			)
-			const propertiesResult = config.getProperties()
-
-			if (propertiesResult.isErr()) {
-				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
-			}
-			const properties = propertiesResult.value
+			const properties = config.getPropertiesOrThrow()
 
 			expect(properties.testProp).toEqual('TestPropValueFromEnv')
 		})
@@ -286,12 +263,7 @@ describe('configHelper', () => {
 					},
 				},
 			)
-			const propertiesResult = config.getProperties()
-
-			if (propertiesResult.isErr()) {
-				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
-			}
-			const properties = propertiesResult.value
+			const properties = config.getPropertiesOrThrow()
 
 			expect(properties.testProp).toEqual('TestPropValueFromEnv')
 		})
@@ -309,12 +281,7 @@ describe('configHelper', () => {
 					prefixExistingEnv: true,
 				},
 			)
-			const propertiesResult = config.getProperties()
-
-			if (propertiesResult.isErr()) {
-				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
-			}
-			const properties = propertiesResult.value
+			const properties = config.getPropertiesOrThrow()
 
 			expect(properties.testProp).toEqual('TestPropValueFromEnv')
 		})
@@ -346,12 +313,7 @@ describe('configHelper', () => {
 				},
 			)
 
-			const propertiesResult = config.getProperties()
-
-			if (propertiesResult.isErr()) {
-				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
-			}
-			const properties = propertiesResult.value
+			const properties = config.getPropertiesOrThrow()
 
 			expect(properties.testProp).toEqual('TestPropEnvValue')
 			expect(properties.testGroup.testProp).toEqual('TestGroupTestPropEnvValue')
@@ -382,12 +344,7 @@ describe('configHelper', () => {
 						},
 					},
 				)
-				const propertiesResult = config.getProperties()
-
-				if (propertiesResult.isErr()) {
-					throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
-				}
-				const properties = propertiesResult.value
+				const properties = config.getPropertiesOrThrow()
 
 				expect(properties.testProp).toEqual(expected)
 			},
@@ -404,12 +361,7 @@ describe('configHelper', () => {
 					},
 				},
 			)
-			const propertiesResult = config.getProperties()
-
-			if (propertiesResult.isErr()) {
-				throw new Error(`Errors occurred: ${propertiesResult.error.map(schemaErrorToString).toString()}`)
-			}
-			const properties = propertiesResult.value
+			const properties = config.getPropertiesOrThrow()
 
 			expect(properties.testProp).toEqual(' \tabc \t')
 		})
@@ -434,6 +386,82 @@ describe('configHelper', () => {
 					fail()
 				}
 			}
+		})
+	})
+
+	describe('property _FILE-env-var tests', () => {
+		it('should parse the path given by the *_FILE env-var', () => {
+			const config = createConfig(
+				{
+					testProp: stringParam({ defaultValue: null }),
+				},
+				{
+					env: {
+						TEST_PROP_FILE: `${__dirname}/test-files/test-prop-file.env-file`,
+					},
+				},
+			)
+			const propertiesResult = config.getPropertiesOrThrow()
+			expect(propertiesResult.testProp).toEqual('testPropContentFromFile')
+		})
+
+		it('should return FileNotFound if file does not exist', () => {
+			const config = createConfig(
+				{
+					testProp: stringParam({ defaultValue: null }),
+				},
+				{
+					env: {
+						TEST_PROP_FILE: `${__dirname}/test-files/test-prop-file-not-existent`,
+					},
+				},
+			)
+			const propertiesResult = config.getProperties()
+			expect(propertiesResult).toEqual(
+				err([
+					{
+						errorType: FileNotFound,
+						propertyPath: ['testProp'],
+						filePath: `${__dirname}/test-files/test-prop-file-not-existent`,
+						cause: new (class extends Error {
+							code = 'ENOENT'
+							errno = -2
+							path = `${__dirname}/test-files/test-prop-file-not-existent`
+							syscall = 'open'
+						})(),
+					},
+				] as ConfigHelperError[]),
+			)
+		})
+
+		it.skip('should return FilePermissionError if file is not accessible due to permissions', () => {
+			// TODO: find a way to test this properly #38
+			const config = createConfig(
+				{
+					testProp: stringParam({ defaultValue: null }),
+				},
+				{
+					env: {
+						TEST_PROP_FILE: `${__dirname}/test-files/test-prop-file-wrong-permissions`,
+					},
+				},
+			)
+			const propertiesResult = config.getProperties()
+			expect(propertiesResult).toEqual(
+				err([
+					{
+						errorType: FilePermissionError,
+						propertyPath: ['testProp'],
+						filePath: `${__dirname}/test-files/test-prop-file-wrong-permissions`,
+						cause: new (class extends Error {
+							code = 'ENOENT'
+							errno = -2
+							path = `${__dirname}/test-files/test-prop-file-wrong-permissions`
+							syscall = 'open'
+						})(),
+					},
+				] as ConfigHelperError[]),
+			)
 		})
 	})
 })

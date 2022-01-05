@@ -6,10 +6,12 @@ import { isNormalizedSchemaObject, NormalizedConfigDefinition, NormalizeSchema }
 import { ConfigOptions } from './config-options'
 import { normalizeSchema } from './create-config'
 import { lazy } from './utils/lazy'
-import { trimString } from './utils/string-util'
 import { err, ok, Result } from 'neverthrow'
 import assertNever from 'assert-never'
 import { ConfigError } from './config.error'
+import { ConfigHelperError } from './config-helper.error'
+import { envVarLoader, fileEnvVarLoader, Loader } from './loader'
+import { defaultLoader } from './loader/default.loader'
 
 export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Config<TSchema> {
 	public readonly schema: NormalizeSchema<TSchema>
@@ -39,7 +41,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 		return this.schema
 	}
 
-	getProperties(): Result<Properties<TSchema>, SchemaError[]> {
+	getProperties(): Result<Properties<TSchema>, ConfigHelperError[]> {
 		return this._properties.value
 	}
 
@@ -51,15 +53,12 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 		return properties.value
 	}
 
-	private _calculateProperties(): Result<Properties<TSchema>, SchemaError[]> {
+	private _calculateProperties(): Result<Properties<TSchema>, ConfigHelperError[]> {
 		const processNormalizedSchemaObject = <TProp>(
 			obj: NormalizedConfigDefinition<TProp>,
 			propertyPath: string[],
-		): Result<TProp | null, SchemaError> => {
-			const potentialValues: Array<TProp | string | null | typeof NoValue> = [
-				this._getEnvVarValue(obj.envVar, obj.trimValue),
-				obj.defaultValue,
-			]
+		): Result<TProp | null, ConfigHelperError> => {
+			const potentialValueGenerators: Loader[] = [envVarLoader, fileEnvVarLoader, defaultLoader]
 
 			const valueTransformer = (
 				value: TProp | string | null | typeof NoValue,
@@ -84,12 +83,19 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 				}
 			}
 
-			const transformedPotentialValues = potentialValues.map(valueTransformer)
-
-			const propValue =
-				transformedPotentialValues.find(
-					(value) => (value.isOk() && value.value !== NoValue) || value.isErr(),
-				) ?? ok(NoValue)
+			const propValue = potentialValueGenerators.reduce<Result<TProp | null | typeof NoValue, ConfigHelperError>>(
+				(acc, currentValue) => {
+					if ((acc.isOk() && acc.value !== NoValue) || acc.isErr()) {
+						return acc
+					}
+					const rawValueResult = currentValue<TProp>(this.environment, obj, propertyPath)
+					if (rawValueResult.isErr()) {
+						return err(rawValueResult.error)
+					}
+					return valueTransformer(rawValueResult.value)
+				},
+				ok(NoValue),
+			)
 
 			if (propValue.isErr()) {
 				return err(propValue.error)
@@ -117,28 +123,14 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 		return this._convertNormalizedSchemaToProps(this.schema, [], processNormalizedSchemaObject)
 	}
 
-	private _getEnvVarValue(key: string, trim: boolean | 'start' | 'end'): string | typeof NoValue {
-		const value = this.environment[key]
-		if (value == null) {
-			return NoValue
-		} else {
-			const trimmedValue = trimString(value, trim)
-			if (trimmedValue.length === 0) {
-				return NoValue
-			} else {
-				return trimmedValue
-			}
-		}
-	}
-
 	private _convertNormalizedSchemaToProps(
 		currentObject: NormalizeSchema<TSchema>,
 		currentPath: string[],
 		schemaObjectConverter: <TProp>(
 			obj: NormalizedConfigDefinition<TProp>,
 			propertyPath: string[],
-		) => Result<TProp | null, SchemaError>,
-	): Result<Properties<TSchema>, SchemaError[]>
+		) => Result<TProp | null, ConfigHelperError>,
+	): Result<Properties<TSchema>, ConfigHelperError[]>
 
 	private _convertNormalizedSchemaToProps<TProp>(
 		currentObject: NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp>,
@@ -146,8 +138,8 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 		schemaObjectConverter: (
 			obj: NormalizedConfigDefinition<TProp>,
 			propertyPath: string[],
-		) => Result<TProp | null, SchemaError>,
-	): Result<Properties<TSchema> | TProp | null, SchemaError[]>
+		) => Result<TProp | null, ConfigHelperError>,
+	): Result<Properties<TSchema> | TProp | null, ConfigHelperError[]>
 
 	private _convertNormalizedSchemaToProps<TProp>(
 		currentObject: NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp>,
@@ -155,8 +147,8 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 		schemaObjectConverter: (
 			obj: NormalizedConfigDefinition<TProp>,
 			propertyPath: string[],
-		) => Result<TProp | null, SchemaError>,
-	): Result<Properties<TSchema> | TProp | null, SchemaError[]> {
+		) => Result<TProp | null, ConfigHelperError>,
+	): Result<Properties<TSchema> | TProp | null, ConfigHelperError[]> {
 		if (isNormalizedSchemaObject(currentObject)) {
 			const processValue = schemaObjectConverter(currentObject, currentPath)
 			if (processValue.isErr()) {
@@ -165,7 +157,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 				return ok(processValue.value)
 			}
 		} else {
-			const alteredObjects: Array<Result<NormalizeSchema<TSchema>, SchemaError[]>> = Object.entries(
+			const alteredObjects: Array<Result<NormalizeSchema<TSchema>, ConfigHelperError[]>> = Object.entries(
 				currentObject,
 			).map((entry) => {
 				const [key, value] = entry
@@ -188,12 +180,15 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 					} as NormalizeSchema<TSchema>)
 				}
 			})
-			const errors = alteredObjects.reduce<SchemaError[]>((acc, x) => acc.concat(x.isErr() ? x.error : []), []) // simulating flatmap
+			const errors = alteredObjects.reduce<ConfigHelperError[]>(
+				(acc, x) => acc.concat(x.isErr() ? x.error : []),
+				[],
+			) // simulating flatmap
 			if (errors.length > 0) {
 				return err(errors)
 			} else {
 				// prettier-ignore
-				const props = alteredObjects.reduce<Array<NormalizeSchema<TSchema>>>((acc, x) => acc.concat(x.isOk() ? [x.value] : []), [],) // simulating flatmap
+				const props = alteredObjects.reduce<Array<NormalizeSchema<TSchema>>>((acc, x) => acc.concat(x.isOk() ? [x.value] : []), []); // simulating flatmap
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 				return ok(Object.assign({}, ...props))
 			}
