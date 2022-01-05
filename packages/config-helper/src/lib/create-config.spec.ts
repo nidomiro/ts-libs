@@ -4,7 +4,7 @@ import { err } from 'neverthrow'
 import { IllegalNullValue, NotConvertable, SchemaError } from './schema.error'
 import { numberParam } from './params/number-param'
 import { ConfigError } from './config.error'
-import { FileNotFound } from './loader'
+import { FileNotFound, FilePermissionError } from './loader'
 import { ConfigHelperError } from './config-helper.error'
 
 describe('configHelper', () => {
@@ -405,7 +405,7 @@ describe('configHelper', () => {
 			expect(propertiesResult.testProp).toEqual('testPropContentFromFile')
 		})
 
-		it('should return error if file could not be read', () => {
+		it('should return FileNotFound if file does not exist', () => {
 			const config = createConfig(
 				{
 					testProp: stringParam({ defaultValue: null }),
@@ -427,6 +427,36 @@ describe('configHelper', () => {
 							code = 'ENOENT'
 							errno = -2
 							path = `${__dirname}/test-files/test-prop-file-not-existent`
+							syscall = 'open'
+						})(),
+					},
+				] as ConfigHelperError[]),
+			)
+		})
+
+		it.skip('should return FilePermissionError if file is not accessible due to permissions', () => {
+			// TODO: find a way to test this properly #38
+			const config = createConfig(
+				{
+					testProp: stringParam({ defaultValue: null }),
+				},
+				{
+					env: {
+						TEST_PROP_FILE: `${__dirname}/test-files/test-prop-file-wrong-permissions`,
+					},
+				},
+			)
+			const propertiesResult = config.getProperties()
+			expect(propertiesResult).toEqual(
+				err([
+					{
+						errorType: FilePermissionError,
+						propertyPath: ['testProp'],
+						filePath: `${__dirname}/test-files/test-prop-file-wrong-permissions`,
+						cause: new (class extends Error {
+							code = 'ENOENT'
+							errno = -2
+							path = `${__dirname}/test-files/test-prop-file-wrong-permissions`
 							syscall = 'open'
 						})(),
 					},
