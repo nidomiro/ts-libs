@@ -48,7 +48,7 @@ describe('configHelper', () => {
 						testProp: stringParam({ defaultValue: 'testPropValue' }),
 					},
 					{
-						envPrefix: 'PREFIX',
+						envPrefix: 'PREFIX_',
 					},
 				)
 
@@ -64,7 +64,7 @@ describe('configHelper', () => {
 						}),
 					},
 					{
-						envPrefix: 'PREFIX',
+						envPrefix: 'PREFIX_',
 					},
 				)
 				expect(config.getSchema().testProp.envVar).toEqual('EXISTING_PROP')
@@ -79,7 +79,7 @@ describe('configHelper', () => {
 						}),
 					},
 					{
-						envPrefix: 'PREFIX',
+						envPrefix: 'PREFIX_',
 						prefixExistingEnv: true,
 					},
 				)
@@ -244,7 +244,7 @@ describe('configHelper', () => {
 					env: {
 						MY_FANCY_PREFIX_TEST_PROP: 'TestPropValueFromEnv',
 					},
-					envPrefix: 'MY_FANCY_PREFIX',
+					envPrefix: 'MY_FANCY_PREFIX_',
 				},
 			)
 			const properties = config.getPropertiesOrThrow()
@@ -277,7 +277,7 @@ describe('configHelper', () => {
 					env: {
 						MY_FANCY_PREFIX_ABC: 'TestPropValueFromEnv',
 					},
-					envPrefix: 'MY_FANCY_PREFIX',
+					envPrefix: 'MY_FANCY_PREFIX_',
 					prefixExistingEnv: true,
 				},
 			)

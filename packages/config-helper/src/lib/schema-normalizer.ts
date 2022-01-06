@@ -1,7 +1,7 @@
 import { isSchemaObject, Schema, ConfigDefinition } from './schema'
 import { ConfigOptions } from './config-options'
 import { NormalizedConfigDefinition, NormalizeSchema } from './normalized-schema'
-import { prefixStringIfDefined } from './utils/string-util'
+import { isNonEmptyString, prefixStringIfDefined } from './utils/string-util'
 import { constantCase } from 'change-case'
 
 export interface SchemaObjectNormalizeOptions {
@@ -25,17 +25,10 @@ export function normalizeSchemaObject<T>(
 
 export function normalizeSchema<TSchema extends Schema<unknown>>(
 	schema: TSchema,
-	opts?: ConfigOptions,
+	opts: ConfigOptions = {},
 ): NormalizeSchema<TSchema> {
-	let envPrefix = ''
-	if (opts?.envPrefix != null && opts.envPrefix.trim().length > 0) {
-		envPrefix = `${opts.envPrefix}_`
-	}
-
-	let existingEnvPrefix = ''
-	if (opts?.prefixExistingEnv ?? false) {
-		existingEnvPrefix = envPrefix
-	}
+	const envPrefix = isNonEmptyString(opts.envPrefix) ? opts.envPrefix : ''
+	const existingEnvPrefix = opts.prefixExistingEnv ?? false ? envPrefix : ''
 
 	function iterate(currentObject: TSchema, currentPath: string[]): NormalizeSchema<TSchema>
 	function iterate<TProp>(
@@ -45,15 +38,14 @@ export function normalizeSchema<TSchema extends Schema<unknown>>(
 		if (isSchemaObject(currentObject)) {
 			return normalizeSchemaObject(currentObject, { envPrefix, existingEnvPrefix, currentPath })
 		} else {
-			const alteredObjects: TSchema[] = Object.entries(currentObject).map((entry) => {
+			const alteredObjects: Array<NormalizeSchema<TSchema>> = Object.entries(currentObject).map((entry) => {
 				const [key, value] = entry
-				let newVal = value
-				if (typeof value === 'object' && value != null) {
-					newVal = iterate(value as TSchema, [...currentPath, key])
-				}
 				return {
-					[key]: newVal,
-				} as TSchema
+					[key]:
+						typeof value === 'object' && value != null
+							? iterate(value as TSchema, [...currentPath, key])
+							: value,
+				} as NormalizeSchema<TSchema>
 			})
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return Object.assign({}, ...alteredObjects)
