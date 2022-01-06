@@ -180,15 +180,12 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 					} as NormalizeSchema<TSchema>)
 				}
 			})
-			const errors = alteredObjects.reduce<ConfigHelperError[]>(
-				(acc, x) => acc.concat(x.isErr() ? x.error : []),
-				[],
-			) // simulating flatmap
+			const errors = alteredObjects.flatMap((x) => (x.isErr() ? x.error : []))
+
 			if (errors.length > 0) {
 				return err(errors)
 			} else {
-				// prettier-ignore
-				const props = alteredObjects.reduce<Array<NormalizeSchema<TSchema>>>((acc, x) => acc.concat(x.isOk() ? [x.value] : []), []); // simulating flatmap
+				const props = alteredObjects.flatMap((x) => (x.isOk() ? [x.value] : []))
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 				return ok(Object.assign({}, ...props))
 			}
