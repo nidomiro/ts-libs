@@ -4,7 +4,6 @@ import { IllegalNullValue, NotConvertable, SchemaError } from './schema.error'
 import { Config } from './config'
 import { isNormalizedSchemaObject, NormalizedConfigDefinition, NormalizeSchema } from './normalized-schema'
 import { ConfigOptions } from './config-options'
-import { normalizeSchema } from './create-config'
 import { lazy } from './utils/lazy'
 import { err, ok, Result } from 'neverthrow'
 import assertNever from 'assert-never'
@@ -12,6 +11,7 @@ import { ConfigError } from './config.error'
 import { ConfigHelperError } from './config-helper.error'
 import { envVarLoader, fileEnvVarLoader, Loader } from './loader'
 import { defaultLoader } from './loader/default.loader'
+import { normalizeSchema } from './schema-normalizer'
 
 export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Config<TSchema> {
 	public readonly schema: NormalizeSchema<TSchema>
@@ -157,7 +157,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 				return ok(processValue.value)
 			}
 		} else {
-			const alteredObjects: Array<Result<NormalizeSchema<TSchema>, ConfigHelperError[]>> = Object.entries(
+			const alteredObjects: Array<Result<Properties<TSchema>, ConfigHelperError[]>> = Object.entries(
 				currentObject,
 			).map((entry) => {
 				const [key, value] = entry
@@ -172,12 +172,12 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 					} else {
 						return ok({
 							[key]: iterateResult.value,
-						} as NormalizeSchema<TSchema>)
+						} as Properties<TSchema>)
 					}
 				} else {
 					return ok({
 						[key]: value,
-					} as NormalizeSchema<TSchema>)
+					} as Properties<TSchema>)
 				}
 			})
 			const errors = alteredObjects.flatMap((x) => (x.isErr() ? x.error : []))
