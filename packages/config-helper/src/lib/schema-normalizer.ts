@@ -2,7 +2,7 @@ import { isSchemaObject, Schema, ConfigDefinition } from './schema'
 import { ConfigOptions } from './config-options'
 import { NormalizedConfigDefinition, NormalizeSchema } from './normalized-schema'
 import { isNonEmptyString, prefixStringIfDefined } from './utils/string-util'
-import { constantCase } from 'change-case'
+import { constantCase } from 'constant-case'
 
 export interface SchemaObjectNormalizeOptions {
 	existingEnvPrefix: string
