@@ -1,5 +1,5 @@
 import { Properties } from './properties'
-import { NoValue, Schema } from './schema'
+import { ConfigValueTransformer, NoValue, Schema } from './schema'
 import { IllegalNullValue, NotConvertable, SchemaError } from './schema.error'
 import { Config } from './config'
 import { isNormalizedSchemaObject, NormalizedConfigDefinition, NormalizeSchema } from './normalized-schema'
@@ -12,6 +12,73 @@ import { ConfigHelperError } from './config-helper.error'
 import { envVarLoader, fileEnvVarLoader, Loader } from './loader'
 import { defaultLoader } from './loader/default.loader'
 import { normalizeSchema } from './schema-normalizer'
+
+function executeValueTransformer<TProp>(
+	value: TProp | string | null | typeof NoValue,
+	transformer: ConfigValueTransformer<TProp>,
+	propertyPath: string[],
+): Result<TProp | null | typeof NoValue, SchemaError> {
+	if (value === NoValue) {
+		return ok(NoValue)
+	}
+	const transformedValue = transformer(value)
+
+	if (transformedValue.isErr()) {
+		if (transformedValue.error === NotConvertable) {
+			return err({
+				errorType: NotConvertable,
+				propertyPath,
+				inputValue: value,
+			} as SchemaError)
+		} else {
+			assertNever(transformedValue.error)
+		}
+	} else {
+		return ok(transformedValue.value)
+	}
+}
+
+function resolvePropValue<TProp>(
+	valueLoaders: Loader[],
+	configDefinition: NormalizedConfigDefinition<TProp>,
+	propertyPath: string[],
+	environment: NodeJS.ProcessEnv,
+) {
+	return valueLoaders.reduce<Result<TProp | null | typeof NoValue, ConfigHelperError>>((acc, valueLoader) => {
+		if ((acc.isOk() && acc.value !== NoValue) || acc.isErr()) {
+			return acc
+		}
+		const rawValueResult = valueLoader<TProp>(environment, configDefinition, propertyPath)
+		if (rawValueResult.isErr()) {
+			return err(rawValueResult.error)
+		}
+		return executeValueTransformer(rawValueResult.value, configDefinition.transformer, propertyPath)
+	}, ok(NoValue))
+}
+
+function convertSchemaObjectToProperty<TProp>(
+	configDefinition: NormalizedConfigDefinition<TProp>,
+	propertyPath: string[],
+	environment: NodeJS.ProcessEnv,
+): Result<TProp | null, ConfigHelperError> {
+	const valueLoaders: Loader[] = [envVarLoader, fileEnvVarLoader, defaultLoader]
+
+	const propValue = resolvePropValue(valueLoaders, configDefinition, propertyPath, environment)
+
+	return propValue.match<Result<TProp | null, ConfigHelperError>>((value) => {
+		if (!(value === NoValue || value == null)) {
+			return ok(value)
+		} else if (configDefinition.optional) {
+			return ok(null)
+		} else {
+			return err({
+				errorType: IllegalNullValue,
+				propertyPath: propertyPath,
+				inputValue: value,
+			} as SchemaError)
+		}
+	}, err)
+}
 
 export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Config<TSchema> {
 	public readonly schema: NormalizeSchema<TSchema>
@@ -54,126 +121,66 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 	}
 
 	private _calculateProperties(): Result<Properties<TSchema>, ConfigHelperError[]> {
-		const processNormalizedSchemaObject = <TProp>(
-			obj: NormalizedConfigDefinition<TProp>,
-			propertyPath: string[],
-		): Result<TProp | null, ConfigHelperError> => {
-			const potentialValueGenerators: Loader[] = [envVarLoader, fileEnvVarLoader, defaultLoader]
-
-			const valueTransformer = (
-				value: TProp | string | null | typeof NoValue,
-			): Result<TProp | null | typeof NoValue, SchemaError> => {
-				if (value === NoValue) {
-					return ok(NoValue)
-				}
-				const transformedValue = obj.transformer(value)
-
-				if (transformedValue.isErr()) {
-					if (transformedValue.error === NotConvertable) {
-						return err({
-							errorType: NotConvertable,
-							propertyPath,
-							inputValue: value,
-						} as SchemaError)
-					} else {
-						assertNever(transformedValue.error)
-					}
-				} else {
-					return ok(transformedValue.value)
-				}
-			}
-
-			const propValue = potentialValueGenerators.reduce<Result<TProp | null | typeof NoValue, ConfigHelperError>>(
-				(acc, currentValue) => {
-					if ((acc.isOk() && acc.value !== NoValue) || acc.isErr()) {
-						return acc
-					}
-					const rawValueResult = currentValue<TProp>(this.environment, obj, propertyPath)
-					if (rawValueResult.isErr()) {
-						return err(rawValueResult.error)
-					}
-					return valueTransformer(rawValueResult.value)
-				},
-				ok(NoValue),
-			)
-
-			if (propValue.isErr()) {
-				return err(propValue.error)
-			} else if (propValue.value === NoValue) {
-				return obj.optional
-					? ok(null)
-					: err({
-							errorType: IllegalNullValue,
-							propertyPath: propertyPath,
-							inputValue: NoValue,
-					  } as SchemaError)
-			} else if (propValue.value == null) {
-				return obj.optional
-					? ok(null)
-					: err({
-							errorType: IllegalNullValue,
-							propertyPath: propertyPath,
-							inputValue: null,
-					  } as SchemaError)
-			} else {
-				return ok(propValue.value)
-			}
-		}
-
-		return this._convertNormalizedSchemaToProps(this.schema, [], processNormalizedSchemaObject)
+		return this._convertNormalizedSchemaToProps(this.schema, [], convertSchemaObjectToProperty)
 	}
 
 	private _convertNormalizedSchemaToProps(
 		currentObject: NormalizeSchema<TSchema>,
 		currentPath: string[],
-		schemaObjectConverter: <TProp>(
+		schemaObjectToPropertyConverter: <TProp>(
 			obj: NormalizedConfigDefinition<TProp>,
 			propertyPath: string[],
+			environment: NodeJS.ProcessEnv,
 		) => Result<TProp | null, ConfigHelperError>,
 	): Result<Properties<TSchema>, ConfigHelperError[]>
 
 	private _convertNormalizedSchemaToProps<TProp>(
 		currentObject: NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp>,
 		currentPath: string[],
-		schemaObjectConverter: (
+		schemaObjectToPropertyConverter: (
 			obj: NormalizedConfigDefinition<TProp>,
 			propertyPath: string[],
+			environment: NodeJS.ProcessEnv,
 		) => Result<TProp | null, ConfigHelperError>,
 	): Result<Properties<TSchema> | TProp | null, ConfigHelperError[]>
 
 	private _convertNormalizedSchemaToProps<TProp>(
 		currentObject: NormalizeSchema<TSchema> | NormalizedConfigDefinition<TProp>,
 		currentPath: string[],
-		schemaObjectConverter: (
+		schemaObjectToPropertyConverter: (
 			obj: NormalizedConfigDefinition<TProp>,
 			propertyPath: string[],
+			environment: NodeJS.ProcessEnv,
 		) => Result<TProp | null, ConfigHelperError>,
 	): Result<Properties<TSchema> | TProp | null, ConfigHelperError[]> {
 		if (isNormalizedSchemaObject(currentObject)) {
-			const processValue = schemaObjectConverter(currentObject, currentPath)
-			if (processValue.isErr()) {
-				return err([processValue.error])
-			} else {
-				return ok(processValue.value)
-			}
+			const propertyConversionResult = schemaObjectToPropertyConverter(
+				currentObject,
+				currentPath,
+				this.environment,
+			)
+
+			return propertyConversionResult.match<Result<TProp | null, ConfigHelperError[]>>(ok, (error) =>
+				err([error]),
+			)
 		} else {
 			const alteredObjects: Array<Result<Properties<TSchema>, ConfigHelperError[]>> = Object.entries(
 				currentObject,
-			).map((entry) => {
-				const [key, value] = entry
+			).map(([key, value]) => {
 				if (typeof value === 'object' && value != null) {
 					const iterateResult = this._convertNormalizedSchemaToProps<TProp>(
 						value as NormalizeSchema<TSchema>,
 						[...currentPath, key],
-						schemaObjectConverter,
+						schemaObjectToPropertyConverter,
 					)
-					if (iterateResult.isErr()) {
-						return err(iterateResult.error)
-					} else {
-						return ok({
-							[key]: iterateResult.value,
-						} as Properties<TSchema>)
-					}
+
+					return iterateResult.match<Result<Properties<TSchema>, ConfigHelperError[]>>(
+						(val) =>
+							ok({
+								[key]: val,
+							} as Properties<TSchema>),
+						err,
+					)
 				} else {
 					return ok({
 						[key]: value,
