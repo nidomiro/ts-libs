@@ -111,7 +111,7 @@ const options: ConfigOptions = {
 	 * In the example above the config 'port' would be configurable via 'MY_PREFIX_PORT'.
 	 * default: no prefix
 	 */
-	envPrefix: 'MY_PREFIX',
+	envPrefix: 'MY_PREFIX_',
 	/**
 	 * Apply the envPrefix to existing env entries if true.
 	 * In the example above the config 'env' would be 'MY_PREFIX_NODE_ENV'

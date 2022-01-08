@@ -20,3 +20,7 @@ export function trimString(str: string, trim: boolean | 'start' | 'end'): string
 		return str.trim()
 	}
 }
+
+export function isNonEmptyString(s: string | null | undefined): s is string {
+	return s != null && s.trim().length > 0
+}
