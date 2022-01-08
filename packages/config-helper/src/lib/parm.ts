@@ -12,7 +12,7 @@ export interface OptionalParam<T> extends ParamCommon<T> {
 
 /**
  * This method is "unsafe" because the types are often inferred incorrectly.
- * It's meant to be called from an custom param.
+ * It's meant to be called from a custom param.
  * If you want to use it in a config-schema-definition you have to provide the first generic type or use `param` instead
  * @param def
  */

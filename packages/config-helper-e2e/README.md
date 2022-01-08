@@ -1,4 +1,4 @@
-# Examples and end to end tests for @nidomiro/config-helper
+# Examples and end-to-end tests for @nidomiro/config-helper
 
 ## Content
 
