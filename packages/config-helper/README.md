@@ -44,9 +44,15 @@ The whole content of the given file is then used as value.
 
 Config resolution order:
 
-1. env-var
-2. file env-var
-3. default value
+1. Environment variable in the following order:
+    1. envVar, auto-generated or explicit
+    2. altEnvVars, leftmost will match first
+2. File environment variables (schema: `${envVar}_FILE`) in the following order:
+    1. `${envVar}_FILE`, auto-generated or explicit
+    2. `${altEnvVars[x]}_FILE`, leftmost will match first
+3. Default value
+
+**Keep in mind:** If any error happens while reading the file, this library will **not** attempt to read an altEnvVars file instead.
 
 Example:
 (If you want more examples, head over to [config-helper-e2e](https://github.com/nidomiro/ts-tools/tree/main/packages/config-helper-e2e/))
@@ -68,6 +74,7 @@ export const config = createConfig({
 	someOptionalProp: stringParam({ defaultValue: null, optional: true }), // Will be configurable via env-var 'SOME_OPTIONAL_PROP' and can be null
 	enableFeatureX: booleanParam({ defaultValue: false }), // Will be configurable via env-var 'ENABLE_FEATURE_X'
 	nameValidationRegex: regexParam({ defaultValue: /\w+/ }), // Will be configurable via env-var 'NAME_VALIDATION_REGEX' and checked if it is a valid regex
+	renamedLegacyParam: stringParam({ defaultValue: '', altEnvVars: ['MY_OLD_ENV_VAR_NAME'] }), // Will be configurable via env-var 'RENAMED_LEGACY_PARAM' and if this env-var does not exist the env-var value of 'MY_OLD_ENV_VAR_NAME' will be used
 })
 
 const propertiesResult = config.getProperties() // contains either the properties or a list of errors (uses neverthrow's Result)

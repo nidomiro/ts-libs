@@ -26,7 +26,7 @@ describe(`ConfigError`, () => {
 			expect(error.toString()).toEqual(
 				`ConfigError: {"errors": [\n` +
 					`\t{"errorType":"Symbol(NotConvertable)","propertyPath":["testProp"],"inputValue":"abc"},\n` +
-					`\t{"errorType":"Symbol(IllegalNullValue)","propertyPath":["anotherProp"],"inputValue":null},\n` +
+					`\t{"errorType":"Symbol(RequiredButNull)","propertyPath":["anotherProp"],"inputValue":null},\n` +
 					`]}`,
 			)
 		})
@@ -56,7 +56,7 @@ describe(`ConfigError`, () => {
 			expect(error.message).toEqual(
 				`ConfigError: {"errors": [\n` +
 					`\t{"errorType":"Symbol(NotConvertable)","propertyPath":["testProp"],"inputValue":"abc"},\n` +
-					`\t{"errorType":"Symbol(IllegalNullValue)","propertyPath":["anotherProp"],"inputValue":null},\n` +
+					`\t{"errorType":"Symbol(RequiredButNull)","propertyPath":["anotherProp"],"inputValue":null},\n` +
 					`]}`,
 			)
 		})

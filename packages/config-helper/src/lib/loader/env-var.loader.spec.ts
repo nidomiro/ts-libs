@@ -1,5 +1,5 @@
 import { ok } from 'neverthrow'
-import { envVarLoader } from '@nidomiro/config-helper'
+import { envVarLoader } from './env-var.loader'
 
 describe(`altEnvVars tests`, () => {
 	it.each([

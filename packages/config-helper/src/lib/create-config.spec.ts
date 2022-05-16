@@ -121,7 +121,7 @@ describe('configHelper', () => {
 	})
 
 	describe('property env-var parse tests', () => {
-		it('should return IllegalNullValue SchemaError if required prop is null', () => {
+		it('should return RequiredButNull SchemaError if required prop is null', () => {
 			const config = createConfig({
 				testProp: stringParam({ defaultValue: null }),
 			})
@@ -138,7 +138,7 @@ describe('configHelper', () => {
 			)
 		})
 
-		it('should return IllegalNullValue SchemaError for all required prop that are null', () => {
+		it('should return RequiredButNull SchemaError for all required prop that are null', () => {
 			const config = createConfig({
 				testProp: stringParam({ defaultValue: null }),
 				group: {
@@ -536,6 +536,68 @@ describe('configHelper', () => {
 			)
 			const propertiesResult = config.getPropertiesOrThrow()
 			expect(propertiesResult.testProp).toEqual(expectedValue)
+		})
+	})
+
+	describe('property _FILE-alt-env-var tests', () => {
+		it('should parse the path given by the *_FILE env-var', () => {
+			const config = createConfig(
+				{
+					testProp: stringParam({ defaultValue: null, altEnvVars: ['TEST'] }),
+				},
+				{
+					env: {
+						TEST_PROP_FILE: `${__dirname}/test-files/test-prop-file.env-file`,
+					},
+				},
+			)
+			const propertiesResult = config.getPropertiesOrThrow()
+			expect(propertiesResult.testProp).toEqual('testPropContentFromFile')
+		})
+
+		it('should return FileNotFound if file does not exist, even if altEnvVars exist', () => {
+			const config = createConfig(
+				{
+					testProp: stringParam({ defaultValue: null, altEnvVars: ['TEST'] }),
+				},
+				{
+					env: {
+						TEST_PROP_FILE: `${__dirname}/test-files/test-prop-file-not-existent`,
+						TEST_FILE: `${__dirname}/test-files/test-prop-file.env-file`,
+					},
+				},
+			)
+			const propertiesResult = config.getProperties()
+			expect(propertiesResult).toEqual(
+				err([
+					{
+						errorType: FileNotFound,
+						propertyPath: ['testProp'],
+						filePath: `${__dirname}/test-files/test-prop-file-not-existent`,
+						cause: new (class extends Error {
+							code = 'ENOENT'
+							errno = -2
+							path = `${__dirname}/test-files/test-prop-file-not-existent`
+							syscall = 'open'
+						})(),
+					},
+				] as ConfigHelperError[]),
+			)
+		})
+
+		it('should parse the path given by the *_FILE inside altEnvVars if envVar does not exist', () => {
+			const config = createConfig(
+				{
+					testProp: stringParam({ defaultValue: null, altEnvVars: ['TEST'] }),
+				},
+				{
+					env: {
+						TEST_FILE: `${__dirname}/test-files/test-prop-file.env-file`,
+					},
+				},
+			)
+			const propertiesResult = config.getPropertiesOrThrow()
+			expect(propertiesResult.testProp).toEqual('testPropContentFromFile')
 		})
 	})
 })
