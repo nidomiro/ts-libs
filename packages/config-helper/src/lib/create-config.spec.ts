@@ -322,6 +322,26 @@ describe('configHelper', () => {
 			expect(properties.testGroup.testProp2).toEqual('TestGroupTestProp2EnvValue')
 			expect(properties.testProp2).toEqual('TestProp2EnvValue')
 		})
+
+		it('property should set every property referencing the same env-var', () => {
+			const config = createConfig(
+				{
+					testProp: stringParam({ envVar: 'ABC', defaultValue: null }),
+					testProp2: stringParam({ envVar: 'ABC', defaultValue: null }),
+					testProp3: stringParam({ envVar: 'ABC', defaultValue: null }),
+				},
+				{
+					env: {
+						ABC: 'TestPropValueFromEnv',
+					},
+				},
+			)
+			const properties = config.getPropertiesOrThrow()
+
+			expect(properties.testProp).toEqual('TestPropValueFromEnv')
+			expect(properties.testProp2).toEqual('TestPropValueFromEnv')
+			expect(properties.testProp3).toEqual('TestPropValueFromEnv')
+		})
 	})
 
 	describe('property trim tests', () => {
