@@ -31,4 +31,34 @@ describe(`ConfigError`, () => {
 			)
 		})
 	})
+
+	describe(`message should contain serialized error`, () => {
+		it(`should print empty errors Array`, () => {
+			const error = new ConfigError([])
+
+			expect(error.message).toEqual(`ConfigError: {"errors": []}`)
+		})
+
+		it(`should print errors`, () => {
+			const error = new ConfigError([
+				{
+					errorType: NotConvertable,
+					propertyPath: ['testProp'],
+					inputValue: 'abc',
+				},
+				{
+					errorType: IllegalNullValue,
+					propertyPath: ['anotherProp'],
+					inputValue: null,
+				},
+			])
+
+			expect(error.message).toEqual(
+				`ConfigError: {"errors": [\n` +
+					`\t{"errorType":"Symbol(NotConvertable)","propertyPath":["testProp"],"inputValue":"abc"},\n` +
+					`\t{"errorType":"Symbol(IllegalNullValue)","propertyPath":["anotherProp"],"inputValue":null},\n` +
+					`]}`,
+			)
+		})
+	})
 })
