@@ -3,7 +3,8 @@ import { NoValue } from '../schema'
 import { ConfigParseError } from '../config-parse.error'
 import { NormalizedConfigDefinition } from '../normalized-schema'
 
-export interface LoaderConfigDef<T> extends Pick<NormalizedConfigDefinition<T>, 'envVar' | 'trimValue'> {}
+export interface LoaderConfigDef<T>
+	extends Pick<NormalizedConfigDefinition<T>, 'envVar' | 'trimValue' | 'altEnvVars'> {}
 export interface LoaderConfigDefDefault<T> extends Pick<NormalizedConfigDefinition<T>, 'defaultValue'> {}
 
 export type Loader = <T>(

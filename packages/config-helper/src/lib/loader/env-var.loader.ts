@@ -3,16 +3,28 @@ import { NoValue } from '../schema'
 import { trimString } from '../utils/string-util'
 import { Loader, LoaderConfigDef } from './loader'
 
-export const envVarLoader: Loader = <T>(environment: NodeJS.ProcessEnv, configDef: LoaderConfigDef<T>) => {
-	const value = environment[configDef.envVar]
+const loadEnvVar = <T>(environment: NodeJS.ProcessEnv, key: string, trimValue: LoaderConfigDef<T>['trimValue']) => {
+	const value = environment[key]
 	if (value == null) {
-		return ok(NoValue)
+		return NoValue
 	} else {
-		const trimmedValue = trimString(value, configDef.trimValue)
+		const trimmedValue = trimString(value, trimValue)
 		if (trimmedValue.length === 0) {
-			return ok(NoValue)
+			return NoValue
 		} else {
-			return ok(trimmedValue)
+			return trimmedValue
 		}
 	}
+}
+
+export const envVarLoader: Loader = <T>(environment: NodeJS.ProcessEnv, configDef: LoaderConfigDef<T>) => {
+	const envVars = [configDef.envVar, ...configDef.altEnvVars]
+	return ok(
+		envVars.reduce<string | typeof NoValue>((result, currentValue) => {
+			if (result !== NoValue) {
+				return result
+			}
+			return loadEnvVar(environment, currentValue, configDef.trimValue)
+		}, NoValue),
+	)
 }

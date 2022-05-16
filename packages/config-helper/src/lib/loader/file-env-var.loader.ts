@@ -12,6 +12,7 @@ export const fileEnvVarLoader: Loader = <T>(
 	configDef: LoaderConfigDef<T>,
 	propertyPath: string[],
 ) => {
+	// TODO: implement altEnvVars
 	const valueFilePath = environment[`${configDef.envVar}_FILE`]
 	if (valueFilePath == null) {
 		return ok(NoValue)

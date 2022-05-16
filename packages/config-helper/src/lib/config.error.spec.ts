@@ -1,5 +1,5 @@
 import { ConfigError } from './config.error'
-import { IllegalNullValue, NotConvertable } from './schema.error'
+import { RequiredButNull, NotConvertable } from './schema.error'
 
 describe(`ConfigError`, () => {
 	describe(`toString`, () => {
@@ -17,7 +17,7 @@ describe(`ConfigError`, () => {
 					inputValue: 'abc',
 				},
 				{
-					errorType: IllegalNullValue,
+					errorType: RequiredButNull,
 					propertyPath: ['anotherProp'],
 					inputValue: null,
 				},
@@ -47,7 +47,7 @@ describe(`ConfigError`, () => {
 					inputValue: 'abc',
 				},
 				{
-					errorType: IllegalNullValue,
+					errorType: RequiredButNull,
 					propertyPath: ['anotherProp'],
 					inputValue: null,
 				},

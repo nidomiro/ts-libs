@@ -1,6 +1,6 @@
 import { Properties } from './properties'
 import { ConfigValueTransformer, NoValue, Schema } from './schema'
-import { IllegalNullValue, NotConvertable, SchemaError } from './schema.error'
+import { RequiredButNull, NotConvertable, SchemaError } from './schema.error'
 import { Config } from './config'
 import { isNormalizedSchemaObject, NormalizedConfigDefinition, NormalizeSchema } from './normalized-schema'
 import { ConfigOptions } from './config-options'
@@ -72,7 +72,7 @@ function convertSchemaObjectToProperty<TProp>(
 			return ok(null)
 		} else {
 			return err({
-				errorType: IllegalNullValue,
+				errorType: RequiredButNull,
 				propertyPath: propertyPath,
 				inputValue: value,
 			} as SchemaError)

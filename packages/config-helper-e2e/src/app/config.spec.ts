@@ -1,4 +1,4 @@
-import { ConfigError, IllegalNullValue, NotConvertable } from '@nidomiro/config-helper'
+import { ConfigError, RequiredButNull, NotConvertable } from '@nidomiro/config-helper'
 import { config } from './config'
 
 describe(`config tests`, () => {
@@ -11,8 +11,8 @@ describe(`config tests`, () => {
 		} catch (configError) {
 			if (configError instanceof ConfigError) {
 				expect(configError.errors).toEqual([
-					{ errorType: IllegalNullValue, propertyPath: ['database', 'username'], inputValue: null },
-					{ errorType: IllegalNullValue, propertyPath: ['database', 'password'], inputValue: null },
+					{ errorType: RequiredButNull, propertyPath: ['database', 'username'], inputValue: null },
+					{ errorType: RequiredButNull, propertyPath: ['database', 'password'], inputValue: null },
 				])
 			} else {
 				fail()

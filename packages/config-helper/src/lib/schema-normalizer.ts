@@ -22,6 +22,7 @@ export function normalizeSchemaObject<T>(
 			prefixStringOrStringArrayIfDefined(existingEnvPrefix, obj.envVar) ??
 			envPrefix + constantCase(currentPath.join('_')),
 		trimValue: obj.trimValue ?? false,
+		altEnvVars: obj.altEnvVars ?? [],
 	}
 }
 
