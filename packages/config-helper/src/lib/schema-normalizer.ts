@@ -1,7 +1,7 @@
 import { isSchemaObject, Schema, ConfigDefinition } from './schema'
 import { ConfigOptions } from './config-options'
 import { NormalizedConfigDefinition, NormalizeSchema } from './normalized-schema'
-import { isNonEmptyString, prefixStringIfDefined } from './utils/string-util'
+import { isNonEmptyString, prefixStringOrStringArrayIfDefined } from './utils/string-util'
 import { constantCase } from 'constant-case'
 
 export interface SchemaObjectNormalizeOptions {
@@ -18,7 +18,9 @@ export function normalizeSchemaObject<T>(
 
 	return {
 		...obj,
-		envVar: prefixStringIfDefined(existingEnvPrefix, obj.envVar) ?? envPrefix + constantCase(currentPath.join('_')),
+		envVar:
+			prefixStringOrStringArrayIfDefined(existingEnvPrefix, obj.envVar) ??
+			envPrefix + constantCase(currentPath.join('_')),
 		trimValue: obj.trimValue ?? false,
 	}
 }

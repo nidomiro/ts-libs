@@ -1,4 +1,4 @@
-import { prefixStringIfDefined, trimString } from './string-util'
+import { prefixStringOrStringArrayIfDefined, trimString } from './string-util'
 
 describe(`string-util`, () => {
 	describe(`prefixStringIfDefined`, () => {
@@ -6,8 +6,9 @@ describe(`string-util`, () => {
 			[`TestPre`, `TestVal`, 'TestPreTestVal'],
 			[`TestPre`, null, null],
 			[`TestPre`, undefined, undefined],
+			[`TestPre`, [`TestVal`, `TestVal2`], [`TestPreTestVal`, `TestPreTestVal2`]],
 		])(`for prefix '%s' and str '%s' return value should be '%s'`, (prefix, str, expected) => {
-			expect(prefixStringIfDefined(prefix, str)).toEqual(expected)
+			expect(prefixStringOrStringArrayIfDefined(prefix, str)).toEqual(expected)
 		})
 	})
 

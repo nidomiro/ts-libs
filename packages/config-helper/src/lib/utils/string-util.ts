@@ -1,8 +1,18 @@
-export function prefixStringIfDefined(prefix: string, str: string): string
-export function prefixStringIfDefined(prefix: string, str: null): null
-export function prefixStringIfDefined(prefix: string, str: undefined): undefined
-export function prefixStringIfDefined(prefix: string, str: string | null | undefined): string | null | undefined
-export function prefixStringIfDefined(prefix: string, str: string | null | undefined): string | null | undefined {
+export function prefixStringOrStringArrayIfDefined(prefix: string, str: string): string
+export function prefixStringOrStringArrayIfDefined(prefix: string, str: string[]): string[]
+export function prefixStringOrStringArrayIfDefined(prefix: string, str: null): null
+export function prefixStringOrStringArrayIfDefined(prefix: string, str: undefined): undefined
+export function prefixStringOrStringArrayIfDefined(
+	prefix: string,
+	str: string | string[] | null | undefined,
+): string | string[] | null | undefined
+export function prefixStringOrStringArrayIfDefined(
+	prefix: string,
+	str: string | string[] | null | undefined,
+): string | string[] | null | undefined {
+	if (Array.isArray(str)) {
+		return str.map((s) => prefixStringOrStringArrayIfDefined(prefix, s))
+	}
 	if (str == null) {
 		return str
 	}
