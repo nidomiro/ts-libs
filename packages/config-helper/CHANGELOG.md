@@ -2,6 +2,12 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.3.2](https://github.com/nidomiro/ts-tools/compare/config-helper@0.3.1...config-helper@0.3.2) (2022-05-16)
+
+### Bug Fixes
+
+-   **config-helper:** config-error now contains all info in message ([5a88937](https://github.com/nidomiro/ts-tools/commit/5a889372493aaa7a2c4ae2f13af67c52a92c6bc8))
+
 ## [0.3.1](https://github.com/nidomiro/ts-tools/compare/config-helper@0.3.0...config-helper@0.3.1) (2022-01-08)
 
 # [0.3.0](https://github.com/nidomiro/ts-tools/compare/config-helper@0.2.2...config-helper@0.3.0) (2022-01-05)
