@@ -2,6 +2,17 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+# [1.0.0](https://github.com/nidomiro/ts-tools/compare/config-helper@0.3.2...config-helper@1.0.0) (2022-05-16)
+
+### Features
+
+-   **config-helper:** implements alternateEnvVars for \_FILE env-Vars ([33c5635](https://github.com/nidomiro/ts-tools/commit/33c56354f5d6aedec2062499084d0b693c9b5328))
+-   **config-helper:** implements alternateEnvVars; renames IllegalNullValue to RequiredButNull ([79e2fbb](https://github.com/nidomiro/ts-tools/commit/79e2fbb0bae67b587b69e3d1e726f02f37f0dc41))
+
+### BREAKING CHANGES
+
+-   **config-helper:** renames IllegalNullValue to RequiredButNull
+
 ## [0.3.2](https://github.com/nidomiro/ts-tools/compare/config-helper@0.3.1...config-helper@0.3.2) (2022-05-16)
 
 ### Bug Fixes
