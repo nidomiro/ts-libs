@@ -1,10 +1,9 @@
 import { ok } from 'neverthrow'
 import { NoValue } from '../schema'
-import { NormalizedConfigDefinition } from '../normalized-schema'
 import { trimString } from '../utils/string-util'
-import { Loader } from './loader'
+import { Loader, LoaderConfigDef } from './loader'
 
-export const envVarLoader: Loader = <T>(environment: NodeJS.ProcessEnv, configDef: NormalizedConfigDefinition<T>) => {
+export const envVarLoader: Loader = <T>(environment: NodeJS.ProcessEnv, configDef: LoaderConfigDef<T>) => {
 	const value = environment[configDef.envVar]
 	if (value == null) {
 		return ok(NoValue)

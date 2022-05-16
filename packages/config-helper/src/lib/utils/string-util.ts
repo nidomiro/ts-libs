@@ -4,6 +4,10 @@ export function prefixStringOrStringArrayIfDefined(prefix: string, str: null): n
 export function prefixStringOrStringArrayIfDefined(prefix: string, str: undefined): undefined
 export function prefixStringOrStringArrayIfDefined(
 	prefix: string,
+	str: string | null | undefined,
+): string | null | undefined
+export function prefixStringOrStringArrayIfDefined(
+	prefix: string,
 	str: string | string[] | null | undefined,
 ): string | string[] | null | undefined
 export function prefixStringOrStringArrayIfDefined(

@@ -1,8 +1,7 @@
 import { err, ok } from 'neverthrow'
 import { NoValue } from '../schema'
-import { NormalizedConfigDefinition } from '../normalized-schema'
 import { trimString } from '../utils/string-util'
-import { Loader } from './loader'
+import { Loader, LoaderConfigDef } from './loader'
 import * as fs from 'fs'
 import { ConfigParseError } from '../config-parse.error'
 import { FileNotFound, FilePermissionError, NotLoadable } from './symbols'
@@ -10,7 +9,7 @@ import { isNonNilObject } from '../utils/object-util'
 
 export const fileEnvVarLoader: Loader = <T>(
 	environment: NodeJS.ProcessEnv,
-	configDef: NormalizedConfigDefinition<T>,
+	configDef: LoaderConfigDef<T>,
 	propertyPath: string[],
 ) => {
 	const valueFilePath = environment[`${configDef.envVar}_FILE`]
