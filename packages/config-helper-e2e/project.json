@@ -1,10 +1,9 @@
 {
-	"root": "packages/config-helper-e2e",
 	"sourceRoot": "packages/config-helper-e2e/src",
 	"projectType": "application",
 	"targets": {
 		"build": {
-			"executor": "@nrwl/node:build",
+			"executor": "@nrwl/node:webpack",
 			"outputs": ["{options.outputPath}"],
 			"options": {
 				"outputPath": "dist/packages/config-helper-e2e",
@@ -27,7 +26,7 @@
 			}
 		},
 		"serve": {
-			"executor": "@nrwl/node:execute",
+			"executor": "@nrwl/node:node",
 			"options": {
 				"buildTarget": "config-helper-e2e:build"
 			}
@@ -43,7 +42,7 @@
 			"executor": "@nrwl/jest:jest",
 			"outputs": ["coverage/packages/config-helper-e2e"],
 			"options": {
-				"jestConfig": "packages/config-helper-e2e/jest.config.js",
+				"jestConfig": "packages/config-helper-e2e/jest.config.ts",
 				"passWithNoTests": true
 			}
 		}

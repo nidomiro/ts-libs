@@ -44,7 +44,7 @@ jobs:
               run: yarn nx affected:build --parallel --prod
 
             - name: bump version and release it
-              run: npx nx affected --target=release-new-version --base=latest-release --parallel
+              run: npx nx affected --target=release-new-version --base=latest-release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLSH_KEY }}

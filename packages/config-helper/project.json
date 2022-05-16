@@ -1,10 +1,9 @@
 {
-	"root": "packages/config-helper",
 	"sourceRoot": "packages/config-helper/src",
 	"projectType": "library",
 	"targets": {
 		"build": {
-			"executor": "@nrwl/node:package",
+			"executor": "@nrwl/js:tsc",
 			"outputs": ["{options.outputPath}"],
 			"options": {
 				"outputPath": "dist/packages/config-helper",
@@ -36,7 +35,7 @@
 			"executor": "@nrwl/jest:jest",
 			"outputs": ["coverage/packages/config-helper"],
 			"options": {
-				"jestConfig": "packages/config-helper/jest.config.js",
+				"jestConfig": "packages/config-helper/jest.config.ts",
 				"passWithNoTests": true
 			}
 		},
@@ -44,6 +43,7 @@
 			"executor": "@jscutlery/semver:version",
 			"options": {
 				"versionTagPrefix": "${target}@",
+				"push": true,
 				"postTargets": [
 					"config-helper:build:production",
 					"config-helper:publish-npm",

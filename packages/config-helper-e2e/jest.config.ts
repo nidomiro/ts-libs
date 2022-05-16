@@ -1,4 +1,5 @@
-module.exports = {
+/* eslint-disable */
+export default {
 	displayName: 'config-helper-e2e',
 	preset: '../../jest.preset.js',
 	globals: {
