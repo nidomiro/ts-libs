@@ -16,5 +16,6 @@
 	"cli": {
 		"defaultCollection": "@nrwl/node"
 	},
-	"defaultProject": "config-helper-e2e"
+	"defaultProject": "config-helper-e2e",
+	"$schema": "./node_modules/nx/schemas/nx-schema.json"
 }
