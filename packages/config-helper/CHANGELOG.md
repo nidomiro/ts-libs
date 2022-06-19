@@ -2,6 +2,12 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+# [1.1.0](https://github.com/nidomiro/ts-tools/compare/config-helper@1.0.0...config-helper@1.1.0) (2022-06-19)
+
+### Features
+
+-   **config-helper:** makes valueLoaders configurable [#37](https://github.com/nidomiro/ts-tools/issues/37) ([fbb76d6](https://github.com/nidomiro/ts-tools/commit/fbb76d6f561d1035bbf1af228f162326cac5905a))
+
 # [1.0.0](https://github.com/nidomiro/ts-tools/compare/config-helper@0.3.2...config-helper@1.0.0) (2022-05-16)
 
 ### Features
