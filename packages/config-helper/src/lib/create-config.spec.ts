@@ -2,10 +2,12 @@ import { createConfig } from './create-config'
 import { stringParam } from './params'
 import { err } from 'neverthrow'
 import { RequiredButNull, NotConvertable, SchemaError } from './schema.error'
+import { NoValue } from './schema'
 import { numberParam } from './params/number-param'
 import { ConfigError } from './config.error'
-import { FileNotFound, FilePermissionError } from './loader'
+import { envVarLoader, fileEnvVarLoader, FileNotFound, FilePermissionError } from './loader'
 import { ConfigHelperError } from './config-helper.error'
+import { defaultLoader } from './loader/default.loader'
 
 describe('configHelper', () => {
 	describe('schema tests', () => {
@@ -598,6 +600,76 @@ describe('configHelper', () => {
 			)
 			const propertiesResult = config.getPropertiesOrThrow()
 			expect(propertiesResult.testProp).toEqual('testPropContentFromFile')
+		})
+	})
+
+	describe('provided valueLoaders tests', () => {
+		it.each([
+			[undefined, 'TestPropFromEnv'],
+			[[envVarLoader], 'TestPropFromEnv'],
+			[[fileEnvVarLoader], 'testPropContentFromFile'],
+			[[defaultLoader], 'DefaultValue'],
+			[[defaultLoader, envVarLoader], 'DefaultValue'],
+			[[defaultLoader, fileEnvVarLoader, envVarLoader], 'DefaultValue'],
+		])(`using '%s' as valueLoaders should result in '%s'`, (valueLoaders, result) => {
+			const config = createConfig(
+				{
+					testProp: stringParam({ defaultValue: 'DefaultValue' }),
+				},
+				{
+					env: {
+						TEST_PROP: `TestPropFromEnv`,
+						TEST_PROP_FILE: `${__dirname}/test-files/test-prop-file.env-file`,
+					},
+					valueLoaders,
+				},
+			)
+
+			const propertiesResult = config.getPropertiesOrThrow()
+			expect(propertiesResult.testProp).toEqual(result)
+		})
+
+		it(`using '[]' as valueLoaders should result in 'RequiredButNull'-Error for required props`, () => {
+			const config = createConfig(
+				{
+					testProp: stringParam({ defaultValue: 'DefaultValue' }),
+				},
+				{
+					env: {
+						TEST_PROP: `TestPropFromEnv`,
+						TEST_PROP_FILE: `${__dirname}/test-files/test-prop-file.env-file`,
+					},
+					valueLoaders: [],
+				},
+			)
+
+			const propertiesResult = config.getProperties()
+
+			if (propertiesResult.isErr()) {
+				expect(propertiesResult.error).toEqual([
+					{ errorType: RequiredButNull, propertyPath: ['testProp'], inputValue: NoValue },
+				])
+			} else {
+				throw new Error(`Expected error, but got: ${JSON.stringify(propertiesResult)}`) // workaround for https://github.com/facebook/jest/issues/11698
+			}
+		})
+
+		it(`using '[]' as valueLoaders should result in 'null' for optional props`, () => {
+			const config = createConfig(
+				{
+					testProp: stringParam({ defaultValue: 'DefaultValue', optional: true }),
+				},
+				{
+					env: {
+						TEST_PROP: `TestPropFromEnv`,
+						TEST_PROP_FILE: `${__dirname}/test-files/test-prop-file.env-file`,
+					},
+					valueLoaders: [],
+				},
+			)
+
+			const propertiesResult = config.getPropertiesOrThrow()
+			expect(propertiesResult.testProp).toBeNull()
 		})
 	})
 })

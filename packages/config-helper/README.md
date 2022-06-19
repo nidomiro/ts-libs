@@ -109,7 +109,7 @@ To create your custom parameter use `numberParam` as a guideline: [./src/lib/par
 
 ### Config options
 
-This library provides some additional options:
+This library provides some additional options to customize:
 
 ```typescript
 const options: ConfigOptions = {
@@ -130,6 +130,14 @@ const options: ConfigOptions = {
 	 *
 	 * default: process.env
 	 */
-	env: {...}
+	env: {...},
+
+	/**
+	 * A list of loaders to be used to resolve the config-value.
+	 * The list is read from front to back, and the first match will be used as value.
+	 *
+	 * default: [envVarLoader, fileEnvVarLoader, defaultLoader]
+	 */
+	valueLoaders: [envVarLoader, fileEnvVarLoader, defaultLoader]
 }
 ```

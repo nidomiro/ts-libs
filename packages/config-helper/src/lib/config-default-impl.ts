@@ -60,9 +60,8 @@ function convertSchemaObjectToProperty<TProp>(
 	configDefinition: NormalizedConfigDefinition<TProp>,
 	propertyPath: string[],
 	environment: NodeJS.ProcessEnv,
+	valueLoaders: Loader[],
 ): Result<TProp | null, ConfigHelperError> {
-	const valueLoaders: Loader[] = [envVarLoader, fileEnvVarLoader, defaultLoader]
-
 	const propValue = resolvePropValue(valueLoaders, configDefinition, propertyPath, environment)
 
 	return propValue.match<Result<TProp | null, ConfigHelperError>>((value) => {
@@ -93,10 +92,13 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 
 	private readonly _properties = lazy(() => this._calculateProperties())
 
+	private readonly _valueLoaders: Loader[]
+
 	constructor(schema: TSchema, private readonly _opts?: ConfigOptions) {
 		this._originalSchema = schema
 		this.schema = normalizeSchema(this._originalSchema, this._opts)
 		this._environment = _opts?.env ?? process.env
+		this._valueLoaders = _opts?.valueLoaders ?? [envVarLoader, fileEnvVarLoader, defaultLoader]
 	}
 
 	setEnvironment(newEnv: NodeJS.ProcessEnv): void {
@@ -131,6 +133,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 			obj: NormalizedConfigDefinition<TProp>,
 			propertyPath: string[],
 			environment: NodeJS.ProcessEnv,
+			valueLoaders: Loader[],
 		) => Result<TProp | null, ConfigHelperError>,
 	): Result<Properties<TSchema>, ConfigHelperError[]>
 
@@ -141,6 +144,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 			obj: NormalizedConfigDefinition<TProp>,
 			propertyPath: string[],
 			environment: NodeJS.ProcessEnv,
+			valueLoaders: Loader[],
 		) => Result<TProp | null, ConfigHelperError>,
 	): Result<Properties<TSchema> | TProp | null, ConfigHelperError[]>
 
@@ -151,6 +155,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 			obj: NormalizedConfigDefinition<TProp>,
 			propertyPath: string[],
 			environment: NodeJS.ProcessEnv,
+			valueLoaders: Loader[],
 		) => Result<TProp | null, ConfigHelperError>,
 	): Result<Properties<TSchema> | TProp | null, ConfigHelperError[]> {
 		if (isNormalizedSchemaObject(currentObject)) {
@@ -158,6 +163,7 @@ export class ConfigDefaultImpl<TSchema extends Schema<unknown>> implements Confi
 				currentObject,
 				currentPath,
 				this.environment,
+				this._valueLoaders,
 			)
 
 			return propertyConversionResult.match<Result<TProp | null, ConfigHelperError[]>>(ok, (error) =>
