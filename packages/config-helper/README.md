@@ -58,10 +58,14 @@ Example:
 (If you want more examples, head over to [config-helper-e2e](https://github.com/nidomiro/ts-tools/tree/main/packages/config-helper-e2e/))
 
 ```typescript
-import { booleanParam, createConfig, numberParam, regexParam, stringParam } from '@nidomiro/config-helper'
+import { booleanParam, createConfig, numberParam, regexParam, stringParam, enumParam } from '@nidomiro/config-helper'
 
 export const config = createConfig({
-	env: stringParam({ defaultValue: 'production', envVar: 'NODE_ENV' /* This won't be overwritten by default */ }),
+	env: enumParam({
+		defaultValue: 'production',
+		possibleValues: ['production', 'development'],
+		envVar: 'NODE_ENV' /* This won't be overwritten by default */,
+	}),
 	port: numberParam({ defaultValue: 8080 }), // Will be configurable via env-var 'PORT'
 	database: {
 		connectionUrl: stringParam({
@@ -74,7 +78,6 @@ export const config = createConfig({
 	someOptionalProp: stringParam({ defaultValue: null, optional: true }), // Will be configurable via env-var 'SOME_OPTIONAL_PROP' and can be null
 	enableFeatureX: booleanParam({ defaultValue: false }), // Will be configurable via env-var 'ENABLE_FEATURE_X'
 	nameValidationRegex: regexParam({ defaultValue: /\w+/ }), // Will be configurable via env-var 'NAME_VALIDATION_REGEX' and checked if it is a valid regex
-	renamedLegacyParam: stringParam({ defaultValue: '', altEnvVars: ['MY_OLD_ENV_VAR_NAME'] }), // Will be configurable via env-var 'RENAMED_LEGACY_PARAM' and if this env-var does not exist the env-var value of 'MY_OLD_ENV_VAR_NAME' will be used
 })
 
 const propertiesResult = config.getProperties() // contains either the properties or a list of errors (uses neverthrow's Result)
@@ -97,6 +100,7 @@ properties.someOptionalProp // type: string | null
 -   `stringParam({ defaultValue: '' })`: requires a string that optionally matches a regex with option `matches`
 -   `booleanParam({ defaultValue: false })`: requires a boolean
 -   `regexParam({ defaultValue: '' })`: requires a Regular Expression
+-   `emumParam({ defaultValue: 'a', possibleValues: ['a', 'b'] })`: requires a value that is either 'a' or 'b'
 -   `param( {defaultValue: T, transformer: (val: unknown):T => {...} })`: a generic parameter where you can define the parameter type yourself
 
 ### Custom predefined params

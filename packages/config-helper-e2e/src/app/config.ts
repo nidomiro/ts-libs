@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { booleanParam, createConfig, numberParam, regexParam, stringParam } from '@nidomiro/config-helper'
+import { booleanParam, createConfig, numberParam, regexParam, stringParam, enumParam } from '@nidomiro/config-helper'
 
 export const config = createConfig({
-	env: stringParam({ defaultValue: 'production', envVar: 'NODE_ENV' /* This won't be overwritten by default */ }),
+	env: enumParam({
+		defaultValue: 'production',
+		possibleValues: ['production', 'development'],
+		envVar: 'NODE_ENV' /* This won't be overwritten by default */,
+	}),
 	port: numberParam({ defaultValue: 8080 }), // Will be configurable via env-var 'PORT'
 	database: {
 		connectionUrl: stringParam({
