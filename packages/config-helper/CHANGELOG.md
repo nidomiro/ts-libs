@@ -2,6 +2,12 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+# [1.2.0](https://github.com/nidomiro/ts-tools/compare/config-helper@1.1.0...config-helper@1.2.0) (2022-06-19)
+
+### Features
+
+-   **config-helper:** adds enumParam [#48](https://github.com/nidomiro/ts-tools/issues/48) ([37a7c0f](https://github.com/nidomiro/ts-tools/commit/37a7c0fed747a1954421805f4afed3a7f6460194))
+
 # [1.1.0](https://github.com/nidomiro/ts-tools/compare/config-helper@1.0.0...config-helper@1.1.0) (2022-06-19)
 
 ### Features
